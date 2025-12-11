@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11304.161 d18.3
+MinimumVisualStudioVersion = 17.8.0.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bikeTracking.AppHost", "bikeTracking.AppHost\bikeTracking.AppHost.csproj", "{C916030E-3C32-4E7C-947B-DDD305399829}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bikeTracking.ServiceDefaults", "bikeTracking.ServiceDefaults\bikeTracking.ServiceDefaults.csproj", "{02FBB95A-DD75-4635-AEB5-EFEF56A4F155}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bikeTracking.ApiService", "bikeTracking.ApiService\bikeTracking.ApiService.csproj", "{7D0E9A1E-B69B-419F-B135-B35ECDC3FD20}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bikeTracking.Tests", "bikeTracking.Tests\bikeTracking.Tests.csproj", "{69350C18-5C9A-4929-8949-50042C1C6AC0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bikeTracking.Web", "bikeTracking.Web\bikeTracking.Web.csproj", "{DB2BD0AC-EEA7-4129-ABE7-A3C038AC87D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C916030E-3C32-4E7C-947B-DDD305399829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C916030E-3C32-4E7C-947B-DDD305399829}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C916030E-3C32-4E7C-947B-DDD305399829}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C916030E-3C32-4E7C-947B-DDD305399829}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02FBB95A-DD75-4635-AEB5-EFEF56A4F155}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02FBB95A-DD75-4635-AEB5-EFEF56A4F155}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02FBB95A-DD75-4635-AEB5-EFEF56A4F155}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02FBB95A-DD75-4635-AEB5-EFEF56A4F155}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D0E9A1E-B69B-419F-B135-B35ECDC3FD20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D0E9A1E-B69B-419F-B135-B35ECDC3FD20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D0E9A1E-B69B-419F-B135-B35ECDC3FD20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D0E9A1E-B69B-419F-B135-B35ECDC3FD20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69350C18-5C9A-4929-8949-50042C1C6AC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69350C18-5C9A-4929-8949-50042C1C6AC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69350C18-5C9A-4929-8949-50042C1C6AC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69350C18-5C9A-4929-8949-50042C1C6AC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB2BD0AC-EEA7-4129-ABE7-A3C038AC87D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB2BD0AC-EEA7-4129-ABE7-A3C038AC87D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB2BD0AC-EEA7-4129-ABE7-A3C038AC87D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB2BD0AC-EEA7-4129-ABE7-A3C038AC87D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A21B7D6-DD39-4D8B-9864-BE53C56B33FD}
+	EndGlobalSection
+EndGlobal
