@@ -4,6 +4,7 @@ Created with SpecKit and Specification Driven Development (SDD) principles to de
 
 https://github.com/github/spec-kit/blob/main/spec-driven.md#core-principles
 
+
 ## Starting Point
 
 I created the `startingPoint-preConstitution` branch with `aspire new` chosing the Blazor and Minimal API for Aspire 13.0.2 on 12/11/2025.
@@ -13,14 +14,41 @@ Then used `specify init .` selecting Copilot and Powershell, to add the SpecKit 
 
 You can see the instructions in the repo here: https://github.com/github/spec-kit
 
+`speckit check` does not list Visual Studio, so I'll work in VS Code.
+
 You'll need Docker or Podman to run the containers that Aspire creates.
 
 
-## SpecKit
+## ðŸ“‹ Project Governance
 
+**All development is governed by the [Bike Tracking Application Constitution](.specify/memory/constitution.md).**
 
-### Constitution
+### SpecKit
 
+Use SpecKit to create specifications and run the development. It is essential to keep the specifications up to date as the source of truth for the project so we can follow the SDD principles.
+
+#### Constitution
+
+This is the constitution prompt I used:
+
+```markdown
+Create with principles focused on code quality, testing standards, user experience consistency, and performance requirements following Clean Architecture, Functional Programming (pure and impure function sandwich), Event Sourcing and Domain Driven Development ideas to create high scalable, quality and usable web application and https API and an SQL Database. 
+Suggest tests, but ask for my input before creating tests.
+
+Focus on creating a working vertical slice of functionality for each specification. We value working software after running /speckit.implementation.
+
+Use the MCP tools for MS Learn (for information), GitHub (source control and actions), Azure MCP for gathering information. Suggest other  MCP tools to use and record those in this constitution. Prompt me for permission to use these. If you are unsure, use a web search and MS Learn to make sure your information is up to date.
+
+We will use the latest Aspire orchestration, latest C# features, C# with .Net 10 Minimal API for the API backend. Make sure we have the latest NuGet packages and ask to update when you see any out of date.
+
+Microsoft Blazor .Net 10 for the front end (with responsive design and and simple UX. The user will login with an OAUTH identity (look up information in MS Learn https://learn.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-10). The user will have access to only their data and publicly available (use the latest Blazor FluentUI v4.13.2 https://www.fluentui-blazor.net/, componentize with "Design Tokens", create a DesignTheme using these colors for a palette "FFCDA4, FFB170, FF7400, D96200, A74C00" to follow our branding)).
+
+The database will be an Azure SQL database. We will use the new SDK style database project to handle all database changes. Following Event Sourcing, create tables to store each event. Current projections will be created in a background Azure Function listening for Change Event Streaming Events (CES) and stored in a different read only table.
+
+The application will be hosted in Azure.  With Aspire, host the application in Azure Container Apps. Use Managed Identity. All secrets must be in the Azure Secret Manager.
+
+DevOps: Pipelines will be for GitHub Actions using the Aspire and `azd` tooling to deploy. Create templates actions for easier reuse.
+```
 
 ### Business Rules/Features
 
@@ -32,19 +60,3 @@ It will also give an estimate of the total savings based on the mileage rate and
 The product will also have a feature to track the number of rides and the average distance per ride. 
 We will show some charts and graphs to visualize the miles and savings. 
 The user will be able to see these for the current year, the total for all the years and be able to drill into each month or day.
-
-- The user will be able to add a ride with a date, time, distance, and notes. The user will be able to edit the ride at any time.
-  - The user will be able to see the current weather for the ride date and time. This will be stored with the ride.
-  - This is the main feature of the application.
-- The user will be able to import rides from a CSV file. The user will be able to export rides to a CSV file.
-- The user will only be able to see the total distance, time, current weather, expenses, gas prices, gallons of gas saved, Co2 saved, and the number of rides for the current year and all years for themself.
-- The user will be able to see the average distance per ride for the current year and all years for themself.
-- The user will be able to see the total savings based on the mileage rate and a different savings based on average gas prices and vehicle miles per gallon for the current year and all years for themself.
-- The user will be able to edit the mileage past rides, but only back 3 months. The user will be able to delete rides, but only back 3 months.
-- The user will be able to add expenses with a date and dollar amount and a note. The user will be able to edit the expenses at any time.
-- The user will be able to import expenses from a CSV file. The user will be able to export expenses to a CSV file.
-- The user will be able to add gas prices with a date and dollar amount. The user will be able to edit the gas prices at any time.
-- The user will be able to add the vehicle with miles per gallon with a date and vehicle name. The user will only be able to add a new vehicle.
-  - This mpg will be used to calculate the gallons of gas saved and Co2 saved.
-- The user will be able to add a mileage rate with a date and dollar amount. The user will only be able to add a new mileage rate.
-
