@@ -4,6 +4,16 @@ Created with SpecKit and Specification Driven Development (SDD) principles to de
 
 https://github.com/github/spec-kit/blob/main/spec-driven.md#core-principles
 
+## Starting Point
+
+I created the `startingPoint-preConstitution` branch with `aspire new` chosing the Blazor and Minimal API for Aspire 13.0.2 on 12/11/2025.
+
+You'll need Docker or Podman to run the containers that Aspire creates.
+
+## SpecKit
+
+### Constitution
+
 
 ### Business Rules/Features
 
