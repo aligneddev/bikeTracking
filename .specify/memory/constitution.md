@@ -1,5 +1,16 @@
 # Bike Tracking Application Constitution
-<!-- Sync Impact Report: Initial ratification v1.0.0; 6 core principles established; Technology stack frozen; Development workflow and testing strategy defined; 14 approved MCP tools recorded -->
+<!-- Sync Impact Report v1.1.0 → v1.1.1
+Version Change: PATCH (1.1.1)
+Rationale: Added Entity Framework Core as the ORM technology for data access, clarifying implementation approach within existing architecture
+Modified Sections:
+- Data & Persistence: Added Entity Framework Core specification for data access layer
+- Database Tests: Added EF Core configuration validation
+- Testing Strategy: Added EF Core-specific test scenarios
+Status: All changes approved by user; no deferred items
+Previous Updates:
+- v1.1.0 (2025-12-11): Added Test Plan Phase, NuGet Package Discipline, and 3 MCP tools (monitor, resourcehealth, role)
+- v1.0.0 (2025-12-11): Initial ratification with 6 core principles and 14 MCP tools
+-->
 
 ## Core Principles
 
@@ -55,9 +66,10 @@ API response times must remain **<500ms at p95** under normal load; database ind
 
 ### Data & Persistence
 - **Primary Database**: Azure SQL Database (serverless elastic pools in production)
-- **Schema Management**: SDK-style database project (.sqlproj with DACPAC) for migrations and version control
-- **Event Store**: Dedicated event table (Events with columns: EventId, AggregateId, EventType, Data JSON, Timestamp, Version)
-- **Read Projections**: Separate read-only tables (e.g., RideProjection, SavingsProjection) built by background functions
+- **ORM & Data Access**: Entity Framework Core (latest .NET 10 compatible version) for all database interactions; DbContext per aggregate root; repositories abstract EF Core from domain layer
+- **Schema Management**: SDK-style database project (.sqlproj with DACPAC) for migrations and version control; EF Core migrations for code-first schema evolution
+- **Event Store**: Dedicated event table (Events with columns: EventId, AggregateId, EventType, Data JSON, Timestamp, Version); events stored as JSON via EF Core value converters
+- **Read Projections**: Separate read-only tables (e.g., RideProjection, SavingsProjection) built by background functions; queried via dedicated read-only DbContext
 - **Change Event Streaming**: Azure SQL Change Tracking or Change Data Capture for triggering Azure Functions
 
 ### Infrastructure & DevOps
