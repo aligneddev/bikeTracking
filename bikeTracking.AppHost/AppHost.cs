@@ -5,7 +5,7 @@ var cache = builder.AddRedis("cache");
 var apiService = builder.AddProject<Projects.bikeTracking_ApiService>("apiservice")
     .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.bikeTracking_Web>("webfrontend")
+builder.AddProject<Projects.bikeTracking_WebWasm>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(cache)
