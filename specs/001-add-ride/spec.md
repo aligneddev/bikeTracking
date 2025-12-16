@@ -119,3 +119,4 @@ The user can add optional free-text notes to a ride (e.g., conditions, route, ef
 
 
 
+\n\n### Policy Updates\n- Notes max length: 2000 characters; plain text only (HTML escaped), emojis/newlines preserved.\n- Recent activity visibility: projection lag accepted up to ≤ 5s (eventual consistency).
