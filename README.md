@@ -8,9 +8,16 @@ https://github.com/github/spec-kit/blob/main/spec-driven.md#core-principles
 
 I created the `startingPoint-preConstitution` branch with `aspire new` chosing the Blazor and Minimal API for Aspire 13.0.2 on 12/11/2025.
 
+I then setup SpecKit toolkit with `uv tool install specify-cli --from git+https://github.com/github/spec-kit.git`
+Then used `specify init .` selecting Copilot and Powershell, to add the SpecKit files to the project.
+
+You can see the instructions in the repo here: https://github.com/github/spec-kit
+
 You'll need Docker or Podman to run the containers that Aspire creates.
 
+
 ## SpecKit
+
 
 ### Constitution
 
