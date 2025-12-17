@@ -8,7 +8,10 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri($"{builder.Configuration["services:apiservice:https:0"] ?? builder.Configuration["services:apiservice:http:0"] ?? "https://localhost:7597"}/")
+});
 
 // Use fake authentication for development
 builder.Services.AddAuthorizationCore();

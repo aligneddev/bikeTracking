@@ -1,5 +1,6 @@
 @ApiService_HostAddress = https://apiservice-biketracking.dev.localhost:7597/
 @rideId = YOUR_RIDE_ID_HERE
+@testUserId = 550e8400-e29b-41d4-a716-446655440000
 
 ###
 # Health Check (Aspire default endpoint)
@@ -8,21 +9,23 @@ GET {{ApiService_HostAddress}}/health
 ###
 # Get all rides for current user (paginated)
 GET {{ApiService_HostAddress}}/api/rides?page=1&pageSize=50
+Authorization: Bearer {{testUserId}}
 
 ###
 # Create a new ride
 POST {{ApiService_HostAddress}}/api/rides
 Content-Type: application/json
+Authorization: Bearer {{testUserId}}
 
 {
-  "date": "2025-12-16",
-  "hour": 14.5,
-  "distance": 25.3,
-  "distanceUnit": "miles",
-  "rideName": "Afternoon Trail Ride",
-  "startLocation": "Downtown Park",
-  "endLocation": "Riverfront Trail",
-  "notes": "Beautiful weather, smooth ride",
+  "date":"2025-12-16",
+  "hour":10,
+  "distance":12,
+  "distanceUnit":"miles",
+  "rideName":"AM",
+  "startLocation":"Home",
+  "endLocation":"Omnitech",
+  "notes":"mash potato snow",
   "latitude": 40.7128,
   "longitude": -74.0060
 }
@@ -30,11 +33,13 @@ Content-Type: application/json
 ###
 # Get ride details by ID
 GET {{ApiService_HostAddress}}/api/rides/{{rideId}}
+Authorization: Bearer {{testUserId}}
 
 ###
 # Edit an existing ride
 PUT {{ApiService_HostAddress}}/api/rides/{{rideId}}
 Content-Type: application/json
+Authorization: Bearer {{testUserId}}
 
 {
   "date": "2025-12-16",
@@ -52,3 +57,4 @@ Content-Type: application/json
 ###
 # Delete a ride
 DELETE {{ApiService_HostAddress}}/api/rides/{{rideId}}
+Authorization: Bearer {{testUserId}}
