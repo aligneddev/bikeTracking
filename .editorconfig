@@ -17,3 +17,5 @@ build_property.Nullable = enable
 # Prefer var when obvious
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = false:suggestion
+
+csharp_style_namespace_declarations = file_scoped:suggestion

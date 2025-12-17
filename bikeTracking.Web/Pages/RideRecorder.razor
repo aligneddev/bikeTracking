@@ -1,0 +1,249 @@
+@page "/rides/add"
+@using BikeTracking.Shared.DTOs
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div class="ride-recorder">
+    <h1>Record a New Ride</h1>
+
+    <EditForm Model="@FormModel" OnValidSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="date">Ride Date (within last 90 days):</label>
+            <InputDate @bind-Value="FormModel.Date" id="date" class="form-control" min="@MinDate.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            <ValidationMessage For="@(() => FormModel.Date)" />
+        </div>
+
+        <div class="form-group">
+            <label for="hour">Hour (0-23):</label>
+            <InputSelect @bind-Value="FormModel.Hour" id="hour" class="form-control">
+                <option value="">-- Select Hour --</option>
+                @for (int h = 0; h < 24; h++)
+                {
+                    <option value="@h">@h:00</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => FormModel.Hour)" />
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="distance">Distance:</label>
+                <div class="input-group">
+                    <InputNumber @bind-Value="FormModel.Distance" id="distance" class="form-control" />
+                    <select @bind="FormModel.DistanceUnit" class="form-control unit-select">
+                        <option value="miles">miles</option>
+                        <option value="kilometers">km</option>
+                    </select>
+                </div>
+                <ValidationMessage For="@(() => FormModel.Distance)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Ride Name:</label>
+            <InputText @bind-Value="FormModel.RideName" id="name" class="form-control" maxlength="200" placeholder="e.g., Morning commute" />
+            <ValidationMessage For="@(() => FormModel.RideName)" />
+        </div>
+
+        <div class="form-group">
+            <label for="start">Start Location:</label>
+            <InputText @bind-Value="FormModel.StartLocation" id="start" class="form-control" maxlength="200" placeholder="e.g., Home" />
+            <ValidationMessage For="@(() => FormModel.StartLocation)" />
+        </div>
+
+        <div class="form-group">
+            <label for="end">End Location:</label>
+            <InputText @bind-Value="FormModel.EndLocation" id="end" class="form-control" maxlength="200" placeholder="e.g., Office" />
+            <ValidationMessage For="@(() => FormModel.EndLocation)" />
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes:</label>
+            <InputTextArea @bind-Value="FormModel.Notes" id="notes" class="form-control" maxlength="1000" placeholder="Optional ride notes..." rows="3"></InputTextArea>
+            <ValidationMessage For="@(() => FormModel.Notes)" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(WeatherMessage))
+        {
+            <div class="alert alert-@(WeatherAvailable ? "info" : "warning")">
+                <strong>Weather:</strong> @WeatherMessage
+            </div>
+        }
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                @if (IsSubmitting)
+                {
+                    <span>Saving...</span>
+                }
+                else
+                {
+                    <span>Save Ride</span>
+                }
+            </button>
+            <button type="button" class="btn btn-secondary" @onclick="@(() => Navigation.NavigateTo(\"/rides\"))">
+                Cancel
+            </button>
+        </div>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3">
+            @ErrorMessage
+        </div>
+    }
+
+    @if (SuccessMessage != null)
+    {
+        <div class="alert alert-success mt-3">
+            @SuccessMessage
+        </div>
+    }
+</div>
+
+@code {
+    private CreateRideRequest FormModel = new();
+    private DateTime MinDate = DateTime.Today.AddDays(-90);
+    private bool IsSubmitting = false;
+    private string? ErrorMessage;
+    private string? SuccessMessage;
+    private string? WeatherMessage;
+    private bool WeatherAvailable = false;
+
+    protected override void OnInitialized()
+    {
+        FormModel.Date = DateOnly.FromDateTime(DateTime.Today);
+        FormModel.Hour = DateTime.Now.Hour;
+        FormModel.DistanceUnit = "kilometers";
+    }
+
+    private async Task HandleSubmit()
+    {
+        IsSubmitting = true;
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("/api/rides", FormModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                SuccessMessage = "Ride saved successfully!";
+                await Task.Delay(1500);
+                Navigation.NavigateTo("/rides");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                ErrorMessage = $"Failed to save ride: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}
+
+<style>
+    .ride-recorder {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .unit-select {
+        width: 120px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #FF7400;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #D96200;
+    }
+
+    .btn-secondary {
+        background-color: #ccc;
+        color: #333;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .alert-info {
+        background-color: #e7f3ff;
+        border: 1px solid #b3d9ff;
+        color: #004085;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+</style>
+
