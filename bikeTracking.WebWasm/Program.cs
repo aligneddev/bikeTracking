@@ -14,10 +14,11 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, TestAuthStateProvider>();
 
-// Real authentication (commented out)
-// builder.Services.AddOidcAuthentication(options =>
-// {
-//     builder.Configuration.Bind("Local", options.ProviderOptions);
-// });
+// Real authentication - Use MSAL for Entra ID
+//builder.Services.AddMsalAuthentication(options =>
+//{
+//    builder.Configuration.Bind("Local", options.ProviderOptions.Authentication);
+//    options.ProviderOptions.DefaultAccessTokenScopes.Add($"api://{builder.Configuration["Authentication:ClientId"]}/access_as_user");
+//});
 
 await builder.Build().RunAsync();
