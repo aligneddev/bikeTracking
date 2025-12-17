@@ -2,14 +2,15 @@
 
 var cache = builder.AddRedis("cache");
 
+var sql = builder.AddSqlServer("sql")
+                 .AddDatabase("BikeTrackingDb");
 var apiService = builder.AddProject<Projects.bikeTracking_ApiService>("apiservice")
-    .WithHttpHealthCheck("/health");
+    .WithReference(sql)
+    .WithReference(cache)
+    .WaitFor(cache);
 
 builder.AddProject<Projects.bikeTracking_WebWasm>("webfrontend")
     .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health")
-    .WithReference(cache)
-    .WaitFor(cache)
     .WithReference(apiService)
     .WaitFor(apiService);
 
