@@ -1,4 +1,5 @@
-using System.Text.Json;
+﻿using System.Text.Json;
+
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;
 using BikeTracking.Domain.Services;
@@ -21,7 +22,7 @@ public class EditRideCommandHandler(IWeatherService weatherService)
     public async Task<(RideEdited rideEdited, DomainEvent[] additionalEvents)> HandleAsync(
         Guid rideId,
         string userId,
-        Ride currentRide,
+        RideProjection currentRide,
         DateOnly? newDate,
         int? newHour,
         decimal? newDistance,
@@ -37,6 +38,10 @@ public class EditRideCommandHandler(IWeatherService weatherService)
     {
         // Detect which fields changed
         var changedFields = new List<string>();
+        if(currentRide == null)
+        {
+            throw new ArgumentNullException(nameof(currentRide), "Current ride projection cannot be null.");
+        }
 
         if (newDate.HasValue && newDate != currentRide.Date)
             changedFields.Add(nameof(currentRide.Date));

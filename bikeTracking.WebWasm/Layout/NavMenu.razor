@@ -1,0 +1,44 @@
+<div class="nav-menu">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Bike Tracking</a>
+            <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="@NavMenuCssClass navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                            <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+                        </NavLink>
+                    </li>
+                    <AuthorizeView>
+                        <Authorized>
+                            <li class="nav-item">
+                                <NavLink class="nav-link" href="rides">
+                                    <span class="bi bi-list-ul" aria-hidden="true"></span> My Rides
+                                </NavLink>
+                            </li>
+                            <li class="nav-item">
+                                <NavLink class="nav-link" href="rides/add">
+                                    <span class="bi bi-plus-circle-fill" aria-hidden="true"></span> Add Ride
+                                </NavLink>
+                            </li>
+                        </Authorized>
+                    </AuthorizeView>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

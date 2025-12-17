@@ -1,10 +1,12 @@
+﻿using bikeTracking.ApiService.Endpoints;
+
+using BikeTracking.Domain.Commands;
+using BikeTracking.Domain.Services;
 using BikeTracking.Infrastructure.Data;
 using BikeTracking.Infrastructure.Repositories;
-using BikeTracking.Domain.Services;
-using BikeTracking.Domain.Commands;
 using BikeTracking.Infrastructure.Services;
+
 using Microsoft.EntityFrameworkCore;
-using bikeTracking.ApiService.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,34 @@ var connectionString = builder.Configuration.GetConnectionString("BikeTrackingDb
 
 builder.Services.AddDbContext<BikeTrackingContext>(options =>
     options.UseSqlServer(connectionString));
+
+
+// ===== Authentication & Authorization =====
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "oidc";
+})
+.AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/login";
+    options.ExpireTimeSpan = TimeSpan.FromHours(1);
+    options.SlidingExpiration = true;
+})
+.AddOpenIdConnect("oidc", options =>
+{
+    options.Authority = builder.Configuration["Authentication:Authority"];
+    options.ClientId = builder.Configuration["Authentication:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:ClientSecret"];
+    options.ResponseType = "code";
+    options.SaveTokens = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.Scope.Add("openid");
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+});
+
+builder.Services.AddAuthorization();
 
 // ===== Domain Services =====
 builder.Services.AddScoped<IWeatherService, NoaaWeatherService>();
@@ -50,6 +80,9 @@ var app = builder.Build();
 // ===== Middleware Pipeline =====
 app.UseExceptionHandler();
 app.UseCors();
+// ===== Authentication & Authorization Middleware =====
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -70,4 +103,3 @@ RidesEndpoints.MapRidesEndpoints(app);
 app.MapDefaultEndpoints();
 
 app.Run();
-

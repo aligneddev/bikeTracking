@@ -1,10 +1,11 @@
-namespace BikeTracking.Infrastructure.Data;
+﻿namespace BikeTracking.Infrastructure.Data;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
+
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.ValueObjects;
-using System.Text.Json;
+
+using Microsoft.EntityFrameworkCore;
 
 public class BikeTrackingContext : DbContext
 {

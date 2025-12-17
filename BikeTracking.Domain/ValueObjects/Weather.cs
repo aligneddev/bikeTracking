@@ -1,4 +1,4 @@
-namespace BikeTracking.Domain.ValueObjects;
+﻿namespace BikeTracking.Domain.ValueObjects;
 
 /// <summary>
 /// Immutable weather conditions at time of ride.
@@ -7,17 +7,17 @@ namespace BikeTracking.Domain.ValueObjects;
 public class Weather
 {
     public decimal? Temperature { get; init; }
-    
+
     public string? Conditions { get; init; }
-    
+
     public decimal? WindSpeed { get; init; }
-    
+
     public string? WindDirection { get; init; }
-    
+
     public decimal? Humidity { get; init; }
-    
+
     public decimal? Pressure { get; init; }
-    
+
     public DateTime CapturedAt { get; init; } = DateTime.UtcNow;
 
     /// <summary>

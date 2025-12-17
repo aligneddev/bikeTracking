@@ -37,18 +37,18 @@
 
 **WARNING: No user story work can begin until this phase is complete**
 
-- [ ] T009 Setup Azure SQL database schema migrations in src/BikeTracking.Infrastructure/Migrations/
-- [ ] T010 [P] Configure OAuth authentication with Microsoft.AspNetCore.Authentication.OpenIdConnect in src/BikeTracking.Api/Program.cs
-- [ ] T011 [P] Create DbContext at src/BikeTracking.Infrastructure/BikeTrackingContext.cs with Events, RideProjections, UserPreferences, DataDeletionRequests, CommunityStatisticsProjections tables
-- [ ] T012 [P] Implement event store repository at src/BikeTracking.Infrastructure/Repositories/EventStoreRepository.cs
-- [ ] T013 [P] Configure Application Insights logging middleware in src/BikeTracking.Api/Program.cs
-- [ ] T014 [P] Create base domain event types at src/BikeTracking.Domain/Events/DomainEvent.cs
-- [ ] T015 [P] Implement NOAA weather service interface IWeatherService at src/BikeTracking.Domain/Services/IWeatherService.cs
-- [ ] T016 Implement NOAA weather service at src/BikeTracking.Infrastructure/Services/NoaaWeatherService.cs with HttpClient + graceful degradation (FR-008)
-- [ ] T017 [P] Create Fluent UI DesignTheme component at src/BikeTracking.Blazor/Shared/DesignTheme.razor with brand palette (FFCDA4, FFB170, FF7400, D96200, A74C00)
-- [ ] T018 [P] Setup appsettings.Development.json with NOAA API token, OAuth config, connection strings
-- [ ] T019 Configure Aspire orchestration at src/BikeTracking.AppHost/Program.cs with API + Blazor + SQL dependencies
-- [ ] T020 Run initial EF Core migration: dotnet ef database update to create Events, RideProjections, UserPreferences tables
+- [x] T009 Setup Azure SQL database schema migrations in src/BikeTracking.Infrastructure/Migrations/
+- [x] T010 [P] Configure OAuth authentication with Microsoft.AspNetCore.Authentication.OpenIdConnect in src/BikeTracking.Api/Program.cs
+- [x] T011 [P] Create DbContext at src/BikeTracking.Infrastructure/BikeTrackingContext.cs with Events, RideProjections, UserPreferences, DataDeletionRequests, CommunityStatisticsProjections tables
+- [x] T012 [P] Implement event store repository at src/BikeTracking.Infrastructure/Repositories/EventStoreRepository.cs
+- [x] T013 [P] Configure Application Insights logging middleware in src/BikeTracking.Api/Program.cs
+- [x] T014 [P] Create base domain event types at src/BikeTracking.Domain/Events/DomainEvent.cs
+- [x] T015 [P] Implement NOAA weather service interface IWeatherService at src/BikeTracking.Domain/Services/IWeatherService.cs
+- [x] T016 Implement NOAA weather service at src/BikeTracking.Infrastructure/Services/NoaaWeatherService.cs with HttpClient + graceful degradation (FR-008)
+- [x] T017 [P] Create Fluent UI DesignTheme component at src/BikeTracking.Blazor/Shared/DesignTheme.razor with brand palette (FFCDA4, FFB170, FF7400, D96200, A74C00)
+- [x] T018 [P] Setup appsettings.Development.json with NOAA API token, OAuth config, connection strings
+- [x] T019 Configure Aspire orchestration at src/BikeTracking.AppHost/Program.cs with API + Blazor + SQL dependencies
+- [x] T020 Run initial EF Core migration: dotnet ef database update to create Events, RideProjections, UserPreferences tables
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,25 +62,25 @@
 
 ### Implementation for User Story 1
 
-- [ ] T021 [P] [US1] Create Ride entity at src/BikeTracking.Domain/Entities/Ride.cs with validation rules (date today, today-90, hour 0-23, required fields)
-- [ ] T022 [P] [US1] Create Weather value object at src/BikeTracking.Domain/ValueObjects/Weather.cs (nullable fields for graceful degradation)
-- [ ] T023 [P] [US1] Create RideCreated domain event at src/BikeTracking.Domain/Events/RideCreated.cs
-- [ ] T024 [P] [US1] Create WeatherFetched domain event at src/BikeTracking.Domain/Events/WeatherFetched.cs
-- [ ] T025 [P] [US1] Create WeatherFetchFailed domain event at src/BikeTracking.Domain/Events/WeatherFetchFailed.cs
-- [ ] T026 [P] [US1] Create CreateRideRequest DTO at src/BikeTracking.Shared/DTOs/CreateRideRequest.cs with DataAnnotations validation
-- [ ] T027 [P] [US1] Create RideResponse DTO at src/BikeTracking.Shared/DTOs/RideResponse.cs
-- [ ] T028 [US1] Implement CreateRideCommand handler at src/BikeTracking.Domain/Commands/CreateRideCommandHandler.cs (pure function: request events)
-- [ ] T029 [US1] Implement RideProjection repository at src/BikeTracking.Infrastructure/Repositories/RideProjectionRepository.cs (saves to RideProjections table)
-- [ ] T030 [US1] Implement POST /api/rides endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs with OAuth requirement, weather fetch, event append
-- [ ] T031 [US1] Add computed column AgeInDays to RideProjections via EF Core migration at src/BikeTracking.Infrastructure/Migrations/AddAgeInDaysColumn.cs
-- [ ] T032 [US1] Create RideRecorder.razor Blazor component at src/BikeTracking.Blazor/Pages/RideRecorder.razor with Fluent UI form, DataAnnotations validation
-- [ ] T033 [US1] Add date picker (90-day constraint client-side) in RideRecorder.razor
-- [ ] T034 [US1] Add hour dropdown (0-23) in RideRecorder.razor
-- [ ] T035 [US1] Add distance input with unit toggle (miles/km) in RideRecorder.razor
-- [ ] T036 [US1] Add ride name, start location, end location text inputs (200 char limit) in RideRecorder.razor
-- [ ] T037 [US1] Add notes textarea in RideRecorder.razor
-- [ ] T038 [US1] Implement weather display in RideRecorder.razor (shows fetched weather preview or "unavailable" message)
-- [ ] T039 [US1] Wire up form submit to POST /api/rides with error handling in RideRecorder.razor
+- [x] T021 [P] [US1] Create Ride entity at src/BikeTracking.Domain/Entities/Ride.cs with validation rules (date today, today-90, hour 0-23, required fields)
+- [x] T022 [P] [US1] Create Weather value object at src/BikeTracking.Domain/ValueObjects/Weather.cs (nullable fields for graceful degradation)
+- [x] T023 [P] [US1] Create RideCreated domain event at src/BikeTracking.Domain/Events/RideCreated.cs
+- [x] T024 [P] [US1] Create WeatherFetched domain event at src/BikeTracking.Domain/Events/WeatherFetched.cs
+- [x] T025 [P] [US1] Create WeatherFetchFailed domain event at src/BikeTracking.Domain/Events/WeatherFetchFailed.cs
+- [x] T026 [P] [US1] Create CreateRideRequest DTO at src/BikeTracking.Shared/DTOs/CreateRideRequest.cs with DataAnnotations validation
+- [x] T027 [P] [US1] Create RideResponse DTO at src/BikeTracking.Shared/DTOs/RideResponse.cs
+- [x] T028 [US1] Implement CreateRideCommand handler at src/BikeTracking.Domain/Commands/CreateRideCommandHandler.cs (pure function: request events)
+- [x] T029 [US1] Implement RideProjection repository at src/BikeTracking.Infrastructure/Repositories/RideProjectionRepository.cs (saves to RideProjections table)
+- [x] T030 [US1] Implement POST /api/rides endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs with OAuth requirement, weather fetch, event append
+- [x] T031 [US1] Add computed column AgeInDays to RideProjections via EF Core migration at src/BikeTracking.Infrastructure/Migrations/AddAgeInDaysColumn.cs
+- [x] T032 [US1] Create RideRecorder.razor Blazor component at src/BikeTracking.Blazor/Pages/RideRecorder.razor with Fluent UI form, DataAnnotations validation
+- [x] T033 [US1] Add date picker (90-day constraint client-side) in RideRecorder.razor
+- [x] T034 [US1] Add hour dropdown (0-23) in RideRecorder.razor
+- [x] T035 [US1] Add distance input with unit toggle (miles/km) in RideRecorder.razor
+- [x] T036 [US1] Add ride name, start location, end location text inputs (200 char limit) in RideRecorder.razor
+- [x] T037 [US1] Add notes textarea in RideRecorder.razor
+- [x] T038 [US1] Implement weather display in RideRecorder.razor (shows fetched weather preview or "unavailable" message)
+- [x] T039 [US1] Wire up form submit to POST /api/rides with error handling in RideRecorder.razor
 
 **Checkpoint**: Users can successfully add rides with all required fields and weather data
 
@@ -122,16 +122,31 @@
 
 ### Implementation for User Story 3
 
-- [ ] T055 [P] [US3] Create WeatherDisplay.razor Blazor component at src/BikeTracking.Blazor/Shared/WeatherDisplay.razor (formats temperature, conditions, wind, humidity, pressure)
-- [ ] T056 [US3] Create RideDetails.razor Blazor page at src/BikeTracking.Blazor/Pages/RideDetails.razor (calls GET /api/rides/{rideId})
-- [ ] T057 [US3] Add WeatherDisplay component to RideDetails.razor (shows weather or "unavailable" message if null)
-- [ ] T058 [US3] Add navigation from RideList.razor to RideDetails.razor (clickable ride name)
-- [ ] T059 [US3] Add back button in RideDetails.razor to return to RideList
+- [x] T055 [P] [US3] Create WeatherDisplay.razor Blazor component at src/BikeTracking.Blazor/Shared/WeatherDisplay.razor (formats temperature, conditions, wind, humidity, pressure)
+- [x] T056 [US3] Create RideDetails.razor Blazor page at src/BikeTracking.Blazor/Pages/RideDetails.razor (calls GET /api/rides/{rideId})
+- [x] T057 [US3] Add WeatherDisplay component to RideDetails.razor (shows weather or "unavailable" message if null)
+- [x] T058 [US3] Add navigation from RideList.razor to RideDetails.razor (clickable ride name)
+- [x] T059 [US3] Add back button in RideDetails.razor to return to RideList
 
 **Checkpoint**: Users can view full ride details including weather context
 
 ---
 
+
+---
+
+## 🔄 DEFERRED TO FUTURE SPEC
+
+**Phases 6-9 have been deferred to a separate specification** to maintain focus on the core ride tracking MVP. The following user stories will be implemented in spec `002-data-management-and-community`:
+
+- **Phase 6**: User Story 4 - Delete Individual Rides (8 tasks)
+- **Phase 7**: User Story 5 - Request Personal Data Deletion (17 tasks)
+- **Phase 8**: User Story 6 - View Anonymous Statistics & Leaderboards (18 tasks)
+- **Phase 9**: User Story 7 - Optional Community Features (4 tasks)
+
+**Total Deferred: 47 tasks**
+
+---
 ## Phase 6: User Story 4 - Delete Individual Rides (Priority: P2)
 
 **Goal**: Users can delete rides 90 days old via UI. Rides > 90 days show disabled delete button with explanation.
@@ -244,9 +259,9 @@
 - [ ] T113 [P] Add performance monitoring: API response time <500ms p95 via Application Insights alerts
 - [ ] T114 [P] Add error boundary components in Blazor app at src/BikeTracking.Blazor/Shared/ErrorBoundary.razor
 - [ ] T115 Code cleanup: Remove unused using statements, apply consistent naming conventions
-- [ ] T116 Run quickstart.md validation: Follow setup steps, verify first test passes
+- [x] T116 Run quickstart.md validation: Follow setup steps, verify first test passes
 - [ ] T117 Generate API documentation: OpenAPI/Swagger JSON export to specs/001-ride-tracking/contracts/openapi.json
-- [ ] T118 [P] Add README.md to repository root with setup instructions, architecture diagram, contribution guidelines
+- [x] T118 [P] Add README.md to repository root with setup instructions, architecture diagram, contribution guidelines
 
 **Checkpoint**: All polish tasks complete, MVP ready for deployment
 
@@ -336,4 +351,9 @@
 **Independent Testing**: Each user story can be tested independently per acceptance criteria in spec.md
 
 **Implementation Strategy**: MVP-first (US1-US2), incremental delivery (US3-US7), parallelizable within constraints
+
+
+
+
+
 

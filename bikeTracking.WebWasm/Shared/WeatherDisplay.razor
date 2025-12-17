@@ -1,0 +1,123 @@
+@using BikeTracking.Shared.DTOs
+
+@* T055: WeatherDisplay.razor component for formatting weather data *@
+
+<div class="weather-display @CssClass">
+    @if (Weather == null)
+    {
+        <div class="weather-unavailable">
+            <span class="icon">☁️</span>
+            <span class="message">Weather data unavailable</span>
+        </div>
+    }
+    else
+    {
+        <div class="weather-available">
+            <h4>Weather Conditions</h4>
+            <div class="weather-grid">
+                @if (Weather.Temperature.HasValue)
+                {
+                    <div class="weather-item">
+                        <span class="label">Temperature:</span>
+                        <span class="value">@Weather.Temperature°F</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Weather.Conditions))
+                {
+                    <div class="weather-item">
+                        <span class="label">Conditions:</span>
+                        <span class="value">@Weather.Conditions</span>
+                    </div>
+                }
+                @if (Weather.WindSpeed.HasValue)
+                {
+                    <div class="weather-item">
+                        <span class="label">Wind:</span>
+                        <span class="value">@Weather.WindSpeed mph @Weather.WindDirection</span>
+                    </div>
+                }
+                @if (Weather.Humidity.HasValue)
+                {
+                    <div class="weather-item">
+                        <span class="label">Humidity:</span>
+                        <span class="value">@Weather.Humidity%</span>
+                    </div>
+                }
+                @if (Weather.Pressure.HasValue)
+                {
+                    <div class="weather-item">
+                        <span class="label">Pressure:</span>
+                        <span class="value">@Weather.Pressure mb</span>
+                    </div>
+                }
+            </div>
+            <div class="weather-captured">
+                <small>Captured: @Weather.CapturedAt.ToString("g")</small>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public WeatherResponse? Weather { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+}
+
+<style>
+    .weather-display {
+        padding: 15px;
+        border-radius: 8px;
+        background: var(--background-secondary, #f5f5f5);
+        margin: 15px 0;
+    }
+
+    .weather-unavailable {
+        text-align: center;
+        color: #666;
+        padding: 10px;
+    }
+
+    .weather-unavailable .icon {
+        font-size: 2em;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .weather-available h4 {
+        margin: 0 0 15px 0;
+        color: var(--brand-accent, #FF7400);
+    }
+
+    .weather-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .weather-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        background: white;
+        border-radius: 4px;
+    }
+
+    .weather-item .label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .weather-item .value {
+        color: #666;
+    }
+
+    .weather-captured {
+        text-align: right;
+        color: #999;
+        margin-top: 10px;
+    }
+</style>

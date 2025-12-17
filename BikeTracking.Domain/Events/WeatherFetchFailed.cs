@@ -1,4 +1,4 @@
-namespace BikeTracking.Domain.Events;
+﻿namespace BikeTracking.Domain.Events;
 
 public class WeatherFetchFailed : DomainEvent
 {

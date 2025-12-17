@@ -1,4 +1,4 @@
-namespace BikeTracking.Shared.DTOs;
+﻿namespace BikeTracking.Shared.DTOs;
 
 using System.ComponentModel.DataAnnotations;
 

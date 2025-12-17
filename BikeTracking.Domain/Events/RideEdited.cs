@@ -1,6 +1,6 @@
-namespace BikeTracking.Domain.Events;
+﻿using BikeTracking.Domain.ValueObjects;
 
-using BikeTracking.Domain.ValueObjects;
+namespace BikeTracking.Domain.Events;
 
 /// <summary>
 /// Domain event: Ride was edited (T040).

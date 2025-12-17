@@ -1,11 +1,10 @@
+﻿using System.Security.Claims;
+
 using BikeTracking.Domain.Commands;
 using BikeTracking.Domain.Entities;
-using BikeTracking.Infrastructure.Data;
+using BikeTracking.Domain.Events;
 using BikeTracking.Infrastructure.Repositories;
 using BikeTracking.Shared.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace bikeTracking.ApiService.Endpoints;
 
@@ -47,28 +46,47 @@ public static class RidesEndpoints
 
             var projection = new RideProjection
             {
-                RideId = rideId, UserId = userId, Date = rideCreatedEvent.Date, Hour = rideCreatedEvent.Hour,
-                Distance = rideCreatedEvent.Distance, DistanceUnit = rideCreatedEvent.DistanceUnit,
-                RideName = rideCreatedEvent.RideName, StartLocation = rideCreatedEvent.StartLocation,
-                EndLocation = rideCreatedEvent.EndLocation, Notes = rideCreatedEvent.Notes,
-                WeatherData = rideCreatedEvent.WeatherData, CreatedTimestamp = rideCreatedEvent.Timestamp, AgeInDays = 0
+                RideId = rideId,
+                UserId = userId,
+                Date = rideCreatedEvent.Date,
+                Hour = rideCreatedEvent.Hour,
+                Distance = rideCreatedEvent.Distance,
+                DistanceUnit = rideCreatedEvent.DistanceUnit,
+                RideName = rideCreatedEvent.RideName,
+                StartLocation = rideCreatedEvent.StartLocation,
+                EndLocation = rideCreatedEvent.EndLocation,
+                Notes = rideCreatedEvent.Notes,
+                WeatherData = rideCreatedEvent.WeatherData,
+                CreatedTimestamp = rideCreatedEvent.Timestamp,
+                AgeInDays = 0
             };
 
             var created = await projectionRepository.CreateAsync(projection);
 
             var response = new RideResponse
             {
-                RideId = created.RideId, UserId = created.UserId, Date = created.Date, Hour = created.Hour,
-                Distance = created.Distance, DistanceUnit = created.DistanceUnit, RideName = created.RideName,
-                StartLocation = created.StartLocation, EndLocation = created.EndLocation, Notes = created.Notes,
+                RideId = created.RideId,
+                UserId = created.UserId,
+                Date = created.Date,
+                Hour = created.Hour,
+                Distance = created.Distance,
+                DistanceUnit = created.DistanceUnit,
+                RideName = created.RideName,
+                StartLocation = created.StartLocation,
+                EndLocation = created.EndLocation,
+                Notes = created.Notes,
                 Weather = created.WeatherData == null ? null : new WeatherResponse
                 {
-                    Temperature = created.WeatherData.Temperature, Conditions = created.WeatherData.Conditions,
-                    WindSpeed = created.WeatherData.WindSpeed, WindDirection = created.WeatherData.WindDirection,
-                    Humidity = created.WeatherData.Humidity, Pressure = created.WeatherData.Pressure,
+                    Temperature = created.WeatherData.Temperature,
+                    Conditions = created.WeatherData.Conditions,
+                    WindSpeed = created.WeatherData.WindSpeed,
+                    WindDirection = created.WeatherData.WindDirection,
+                    Humidity = created.WeatherData.Humidity,
+                    Pressure = created.WeatherData.Pressure,
                     CapturedAt = created.WeatherData.CapturedAt
                 },
-                CreatedAt = created.CreatedTimestamp, AgeInDays = created.AgeInDays
+                CreatedAt = created.CreatedTimestamp,
+                AgeInDays = created.AgeInDays
             };
 
             return Results.Created($"/api/rides/{rideId}", response);
@@ -85,9 +103,14 @@ public static class RidesEndpoints
         var count = await repository.GetUserRideCountAsync(userId);
         var responses = rides.Select(r => new RideListItemResponse
         {
-            RideId = r.RideId, RideName = r.RideName, StartLocation = r.StartLocation,
-            EndLocation = r.EndLocation, Distance = r.Distance, DistanceUnit = r.DistanceUnit,
-            AgeInDays = r.AgeInDays, CreatedAt = r.CreatedTimestamp
+            RideId = r.RideId,
+            RideName = r.RideName,
+            StartLocation = r.StartLocation,
+            EndLocation = r.EndLocation,
+            Distance = r.Distance,
+            DistanceUnit = r.DistanceUnit,
+            AgeInDays = r.AgeInDays,
+            CreatedAt = r.CreatedTimestamp
         }).ToList();
         return Results.Ok(new { data = responses, total = count, page, pageSize });
     }
@@ -97,23 +120,35 @@ public static class RidesEndpoints
     {
         var ride = await repository.GetByIdAsync(rideId);
         if (ride == null) return Results.NotFound();
-        
+
         var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (ride.UserId != userId) return Results.Forbid();
 
         var response = new RideResponse
         {
-            RideId = ride.RideId, UserId = ride.UserId, Date = ride.Date, Hour = ride.Hour,
-            Distance = ride.Distance, DistanceUnit = ride.DistanceUnit, RideName = ride.RideName,
-            StartLocation = ride.StartLocation, EndLocation = ride.EndLocation, Notes = ride.Notes,
+            RideId = ride.RideId,
+            UserId = ride.UserId,
+            Date = ride.Date,
+            Hour = ride.Hour,
+            Distance = ride.Distance,
+            DistanceUnit = ride.DistanceUnit,
+            RideName = ride.RideName,
+            StartLocation = ride.StartLocation,
+            EndLocation = ride.EndLocation,
+            Notes = ride.Notes,
             Weather = ride.WeatherData == null ? null : new WeatherResponse
             {
-                Temperature = ride.WeatherData.Temperature, Conditions = ride.WeatherData.Conditions,
-                WindSpeed = ride.WeatherData.WindSpeed, WindDirection = ride.WeatherData.WindDirection,
-                Humidity = ride.WeatherData.Humidity, Pressure = ride.WeatherData.Pressure,
+                Temperature = ride.WeatherData.Temperature,
+                Conditions = ride.WeatherData.Conditions,
+                WindSpeed = ride.WeatherData.WindSpeed,
+                WindDirection = ride.WeatherData.WindDirection,
+                Humidity = ride.WeatherData.Humidity,
+                Pressure = ride.WeatherData.Pressure,
                 CapturedAt = ride.WeatherData.CapturedAt
             },
-            CreatedAt = ride.CreatedTimestamp, ModifiedAt = ride.ModifiedTimestamp, AgeInDays = ride.AgeInDays
+            CreatedAt = ride.CreatedTimestamp,
+            ModifiedAt = ride.ModifiedTimestamp,
+            AgeInDays = ride.AgeInDays
         };
         return Results.Ok(response);
     }
@@ -129,7 +164,7 @@ public static class RidesEndpoints
             if (currentRide == null) return Results.NotFound();
             if (currentRide.UserId != userId) return Results.Forbid();
 
-            var (rideEditedEvent, additionalEvents) = await commandHandler.HandleAsync(
+            (RideEdited rideEditedEvent, DomainEvent[] additionalEvents) = await commandHandler.HandleAsync(
                 rideId, userId, currentRide, request.Date, request.Hour, request.Distance, request.DistanceUnit,
                 request.RideName, request.StartLocation, request.EndLocation, request.Notes, request.Latitude, request.Longitude);
 
@@ -152,17 +187,29 @@ public static class RidesEndpoints
 
             var response = new RideResponse
             {
-                RideId = currentRide.RideId, UserId = currentRide.UserId, Date = currentRide.Date, Hour = currentRide.Hour,
-                Distance = currentRide.Distance, DistanceUnit = currentRide.DistanceUnit, RideName = currentRide.RideName,
-                StartLocation = currentRide.StartLocation, EndLocation = currentRide.EndLocation, Notes = currentRide.Notes,
+                RideId = currentRide.RideId,
+                UserId = currentRide.UserId,
+                Date = currentRide.Date,
+                Hour = currentRide.Hour,
+                Distance = currentRide.Distance,
+                DistanceUnit = currentRide.DistanceUnit,
+                RideName = currentRide.RideName,
+                StartLocation = currentRide.StartLocation,
+                EndLocation = currentRide.EndLocation,
+                Notes = currentRide.Notes,
                 Weather = currentRide.WeatherData == null ? null : new WeatherResponse
                 {
-                    Temperature = currentRide.WeatherData.Temperature, Conditions = currentRide.WeatherData.Conditions,
-                    WindSpeed = currentRide.WeatherData.WindSpeed, WindDirection = currentRide.WeatherData.WindDirection,
-                    Humidity = currentRide.WeatherData.Humidity, Pressure = currentRide.WeatherData.Pressure,
+                    Temperature = currentRide.WeatherData.Temperature,
+                    Conditions = currentRide.WeatherData.Conditions,
+                    WindSpeed = currentRide.WeatherData.WindSpeed,
+                    WindDirection = currentRide.WeatherData.WindDirection,
+                    Humidity = currentRide.WeatherData.Humidity,
+                    Pressure = currentRide.WeatherData.Pressure,
                     CapturedAt = currentRide.WeatherData.CapturedAt
                 },
-                CreatedAt = currentRide.CreatedTimestamp, ModifiedAt = currentRide.ModifiedTimestamp, AgeInDays = currentRide.AgeInDays
+                CreatedAt = currentRide.CreatedTimestamp,
+                ModifiedAt = currentRide.ModifiedTimestamp,
+                AgeInDays = currentRide.AgeInDays
             };
             return Results.Ok(response);
         }
@@ -177,9 +224,18 @@ public static class RidesEndpoints
         {
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User ID not found");
             var ride = await repository.GetByIdAsync(rideId);
-            if (ride == null) return Results.NotFound();
-            if (ride.UserId != userId) return Results.Forbid();
-            if (ride.AgeInDays > 90) return Results.StatusCode(403, new { error = "Cannot delete rides older than 90 days" });
+            if (ride == null)
+            {
+                return Results.NotFound();
+            }
+            if (ride.UserId != userId)
+            {
+                return Results.Forbid();
+            }
+            if (ride.AgeInDays > 90)
+            {
+                return Results.BadRequest(new { error = "Cannot delete rides older than 90 days" });
+            }
 
             await repository.DeleteAsync(rideId);
             return Results.NoContent();
@@ -187,3 +243,4 @@ public static class RidesEndpoints
         catch (Exception ex) { return Results.Problem(detail: ex.Message, statusCode: 500); }
     }
 }
+

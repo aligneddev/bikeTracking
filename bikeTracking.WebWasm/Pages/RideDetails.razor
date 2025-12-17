@@ -1,0 +1,245 @@
+@page "/rides/{RideId:guid}"
+@using BikeTracking.Shared.DTOs
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@using bikeTracking.WebWasm.Shared
+
+@* T056: RideDetails.razor page for viewing full ride details with weather *@
+
+<PageTitle>Ride Details</PageTitle>
+
+<div class="ride-details-container">
+    @if (isLoading)
+    {
+        <p>Loading ride details...</p>
+    }
+    else if (ride == null)
+    {
+        <div class="alert alert-warning">
+            <p>Ride not found.</p>
+            <button class="btn btn-primary" @onclick="BackToList">Back to Rides</button>
+        </div>
+    }
+    else
+    {
+        <div class="ride-header">
+            <h1>@ride.RideName</h1>
+            <div class="ride-meta">
+                <span>@ride.Date.ToString("MMM dd, yyyy") at @ride.Hour:00</span>
+                <span>•</span>
+                <span>@ride.AgeInDays days ago</span>
+            </div>
+        </div>
+
+        <div class="ride-details-content">
+            <div class="detail-section">
+                <h3>Route Information</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="label">Start Location:</span>
+                        <span class="value">@ride.StartLocation</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">End Location:</span>
+                        <span class="value">@ride.EndLocation</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Distance:</span>
+                        <span class="value">@ride.Distance @ride.DistanceUnit</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ride.Notes))
+            {
+                <div class="detail-section">
+                    <h3>Notes</h3>
+                    <div class="notes-content">
+                        @ride.Notes
+                    </div>
+                </div>
+            }
+
+            @* T057: Display weather using WeatherDisplay component *@
+            <div class="detail-section">
+                <WeatherDisplay Weather="@ride.Weather" />
+            </div>
+
+            <div class="detail-section">
+                <h3>Metadata</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="label">Created:</span>
+                        <span class="value">@ride.CreatedAt.ToString("g")</span>
+                    </div>
+                    @if (ride.ModifiedAt.HasValue)
+                    {
+                        <div class="detail-item">
+                            <span class="label">Last Modified:</span>
+                            <span class="value">@ride.ModifiedAt.Value.ToString("g")</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* T059: Back button to return to ride list *@
+        <div class="action-buttons">
+            <button class="btn btn-secondary" @onclick="BackToList">
+                ← Back to Rides
+            </button>
+            <button class="btn btn-primary" @onclick="EditRide">
+                Edit Ride
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid RideId { get; set; }
+
+    private RideResponse? ride;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRideDetails();
+    }
+
+    private async Task LoadRideDetails()
+    {
+        isLoading = true;
+        try
+        {
+            ride = await Http.GetFromJsonAsync<RideResponse>($"/api/rides/{RideId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading ride details: {ex.Message}");
+            ride = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void BackToList()
+    {
+        Navigation.NavigateTo("/rides");
+    }
+
+    private void EditRide()
+    {
+        Navigation.NavigateTo($"/rides/{RideId}/edit");
+    }
+}
+
+<style>
+    .ride-details-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .ride-header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--brand-accent, #FF7400);
+    }
+
+    .ride-header h1 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .ride-meta {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .ride-meta span {
+        margin-right: 8px;
+    }
+
+    .detail-section {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .detail-section h3 {
+        margin: 0 0 15px 0;
+        color: var(--brand-dark, #D96200);
+    }
+
+    .detail-grid {
+        display: grid;
+        gap: 15px;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-item .label {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .detail-item .value {
+        color: #333;
+    }
+
+    .notes-content {
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+    }
+
+    .btn-primary {
+        background: var(--brand-accent, #FF7400);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--brand-dark, #D96200);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+</style>
+
