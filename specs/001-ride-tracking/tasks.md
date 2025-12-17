@@ -20,14 +20,14 @@
 
 **Purpose**: Project initialization
 
-- [ ] T001 Create .NET 10 solution structure with Aspire AppHost at src/BikeTracking.AppHost/Program.cs
-- [ ] T002 [P] Initialize Blazor frontend project at src/BikeTracking.Blazor/ with Fluent UI v4.13.2
-- [ ] T003 [P] Initialize Minimal API project at src/BikeTracking.Api/Program.cs
-- [ ] T004 [P] Initialize Domain project at src/BikeTracking.Domain/ (class library)
-- [ ] T005 [P] Initialize Infrastructure project at src/BikeTracking.Infrastructure/ (EF Core)
-- [ ] T006 [P] Initialize Shared project at src/BikeTracking.Shared/ (DTOs, contracts)
-- [ ] T007 [P] Add NuGet packages: EF Core, Fluent UI Blazor, Azure.Identity, Application Insights SDK
-- [ ] T008 Configure linting (EditorConfig) and code analysis rules at root .editorconfig
+- [x] T001 Create .NET 10 solution structure with Aspire AppHost at src/BikeTracking.AppHost/Program.cs
+- [x] T002 [P] Initialize Blazor frontend project at src/BikeTracking.Blazor/ with Fluent UI v4.13.2
+- [x] T003 [P] Initialize Minimal API project at src/BikeTracking.Api/Program.cs
+- [x] T004 [P] Initialize Domain project at src/BikeTracking.Domain/ (class library)
+- [x] T005 [P] Initialize Infrastructure project at src/BikeTracking.Infrastructure/ (EF Core)
+- [x] T006 [P] Initialize Shared project at src/BikeTracking.Shared/ (DTOs, contracts)
+- [x] T007 [P] Add NuGet packages: EF Core, Fluent UI Blazor, Azure.Identity, Application Insights SDK
+- [x] T008 Configure linting (EditorConfig) and code analysis rules at root .editorconfig
 
 ---
 
