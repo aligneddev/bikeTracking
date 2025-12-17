@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;
 using Microsoft.Extensions.Configuration;
@@ -27,13 +27,14 @@ public class NoaaWeatherService : IWeatherService
         _configuration = configuration;
         _logger = logger;
 
-        _apiToken = _configuration["WeatherService:ApiToken"] 
-            ?? throw new InvalidOperationException("NOAA API token not configured");
+        // API token is coming in the future
+        //_apiToken = _configuration["WeatherService:ApiToken"] 
+        //    ?? throw new InvalidOperationException("NOAA API token not configured");
         _baseUrl = _configuration["WeatherService:NoaaBaseUrl"] 
             ?? "https://api.weather.gov";
 
-        _httpClient.DefaultRequestHeaders.Add("token", _apiToken);
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "BikeTracking/1.0");
+        //_httpClient.DefaultRequestHeaders.Add("token", _apiToken);
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "BikeTrackingDemo/1.0, 'test@demo.com'");
     }
 
     public async Task<Weather?> GetHistoricalWeatherAsync(

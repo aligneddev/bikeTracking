@@ -155,6 +155,8 @@ dotnet_diagnostic.IDE0005.severity = warning # Remove unnecessary usings
 dotnet_diagnostic.IDE0060.severity = suggestion # Remove unused parameter
 dotnet_diagnostic.IDE0051.severity = suggestion # Remove unused private members
 dotnet_diagnostic.IDE0044.severity = suggestion # Make field readonly
+# IDE0008: Use explicit type
+dotnet_diagnostic.IDE0008.severity = none
 
 Test files: relax some rules
 [*.Tests.cs]

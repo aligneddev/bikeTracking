@@ -8,7 +8,7 @@ public class UserPreference
 {
     public string UserId { get; set; } = null!; // OAuth identity, PK
 
-    public string DistanceUnit { get; set; } = "kilometers"; // "miles" or "kilometers"
+    public string DistanceUnit { get; set; } = "miles"; // "miles" or "kilometers"
 
     public bool CommunityOptIn { get; set; }  // Consent for community features
 

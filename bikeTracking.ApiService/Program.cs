@@ -1,4 +1,5 @@
-﻿using bikeTracking.ApiService.Endpoints;
+﻿using bikeTracking.ApiService;
+using bikeTracking.ApiService.Endpoints;
 
 using BikeTracking.Domain.Commands;
 using BikeTracking.Domain.Services;
@@ -22,29 +23,37 @@ builder.Services.AddDbContext<BikeTrackingContext>(options =>
 
 
 // ===== Authentication & Authorization =====
-builder.Services.AddAuthentication(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.DefaultScheme = "Cookies";
-    options.DefaultChallengeScheme = "oidc";
-})
-.AddCookie("Cookies", options =>
+    _ = builder.Services.AddAuthentication("TestScheme")
+        .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, TestAuthenticationHandler>("TestScheme", options => { });
+}
+else
 {
-    options.LoginPath = "/login";
-    options.ExpireTimeSpan = TimeSpan.FromHours(1);
-    options.SlidingExpiration = true;
-})
-.AddOpenIdConnect("oidc", options =>
-{
-    options.Authority = builder.Configuration["Authentication:Authority"];
-    options.ClientId = builder.Configuration["Authentication:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:ClientSecret"];
-    options.ResponseType = "code";
-    options.SaveTokens = true;
-    options.GetClaimsFromUserInfoEndpoint = true;
-    options.Scope.Add("openid");
-    options.Scope.Add("profile");
-    options.Scope.Add("email");
-});
+    _ = builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "Cookies";
+        options.DefaultChallengeScheme = "oidc";
+    })
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    })
+    .AddOpenIdConnect("oidc", options =>
+    {
+        options.Authority = builder.Configuration["Authentication:Authority"];
+        options.ClientId = builder.Configuration["Authentication:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:ClientSecret"];
+        options.ResponseType = "code";
+        options.SaveTokens = true;
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+    });
+}
 
 builder.Services.AddAuthorization();
 
