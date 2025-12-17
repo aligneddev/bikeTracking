@@ -72,7 +72,7 @@ public class NoaaWeatherService : IWeatherService
             ?? "https://api.weather.gov";
 
         //_httpClient.DefaultRequestHeaders.Add("token", _apiToken);
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "BikeTrackingDemo/1.0, 'test@demo.com'");
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "BikeTrackingDemo/1.0");
     }
 
     public async Task<Weather?> GetHistoricalWeatherAsync(
