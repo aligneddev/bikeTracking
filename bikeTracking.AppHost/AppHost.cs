@@ -1,6 +1,4 @@
-﻿using Aspire.Hosting.Publishing;
-
-var builder = DistributedApplication.CreateBuilder(args);
+﻿var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 // SQL Server Integration Reference:

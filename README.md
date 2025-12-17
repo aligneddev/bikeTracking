@@ -2,6 +2,8 @@
 
 A comprehensive bike ride tracking application built with .NET 10, Blazor WebAssembly, and Azure Aspire. Track your rides with weather data, edit ride details, and view comprehensive ride history.
 
+Built as an example of using [SpecKit](https://www.github.com/spec-kit).
+
 ## Features
 
 ✅ **Ride Management**
@@ -137,6 +139,7 @@ Create a new migration:
 cd BikeTracking.Infrastructure
 dotnet ef migrations add MigrationName --context BikeTrackingContext
 ```
+ --connection "Server=127.0.0.1,1433;User ID=sa;Password
 
 Apply migrations:
 ```bash
@@ -184,6 +187,9 @@ The following features are planned for future releases (see spec `002-data-manag
 - GDPR-compliant data export and deletion requests
 - Anonymous community statistics and leaderboards
 - Social features (shareable rides, challenges)
+
+## TODOs
+- Figure out real Auth with EntraID and OAuth
 
 ## Contributing
 

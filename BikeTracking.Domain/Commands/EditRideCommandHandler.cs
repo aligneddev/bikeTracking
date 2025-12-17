@@ -38,7 +38,7 @@ public class EditRideCommandHandler(IWeatherService weatherService)
     {
         // Detect which fields changed
         var changedFields = new List<string>();
-        if(currentRide == null)
+        if (currentRide == null)
         {
             throw new ArgumentNullException(nameof(currentRide), "Current ride projection cannot be null.");
         }
