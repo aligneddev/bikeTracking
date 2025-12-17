@@ -1,4 +1,4 @@
-namespace BikeTracking.Shared.DTOs;
+﻿namespace BikeTracking.Shared.DTOs;
 
 /// <summary>
 /// Query to get paginated user rides (T042).

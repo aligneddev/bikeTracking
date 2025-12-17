@@ -1,7 +1,8 @@
 ﻿
-using Microsoft.EntityFrameworkCore;
 using BikeTracking.Domain.Events;
 using BikeTracking.Infrastructure.Data;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace BikeTracking.Infrastructure.Repositories;
 

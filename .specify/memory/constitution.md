@@ -76,7 +76,7 @@ All user input **MUST** be validated in three layers: (1) **Client-side (Blazor)
 ### Data & Persistence
 - **Primary Database**: Azure SQL Database (serverless elastic pools in production)
 - **ORM & Data Access**: Entity Framework Core (latest .NET 10 compatible version) for all database interactions; DbContext per aggregate root; repositories abstract EF Core from domain layer
-- **Schema Management**: SDK-style database project (.sqlproj with DACPAC) for migrations and version control; EF Core migrations for code-first schema evolution
+- **Schema Management**: EF Core migrations for code-first schema evolution
 - **Event Store**: Dedicated event table (Events with columns: EventId, AggregateId, EventType, Data JSON, Timestamp, Version); events stored as JSON via EF Core value converters
 - **Read Projections**: Separate read-only tables (e.g., RideProjection, SavingsProjection) built by background functions; queried via dedicated read-only DbContext
 - **Change Event Streaming**: Azure SQL Change Tracking or Change Data Capture for triggering Azure Functions

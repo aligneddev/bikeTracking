@@ -1,4 +1,4 @@
-namespace BikeTracking.Domain.Commands;
+﻿namespace BikeTracking.Domain.Commands;
 
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;

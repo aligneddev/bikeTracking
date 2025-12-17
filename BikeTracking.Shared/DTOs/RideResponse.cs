@@ -81,5 +81,8 @@ public class RideListItemResponse
     public int AgeInDays { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public bool CanDelete { get; set; }
 }
+
 

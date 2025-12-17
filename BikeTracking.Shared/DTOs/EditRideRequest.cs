@@ -1,4 +1,4 @@
-namespace BikeTracking.Shared.DTOs;
+﻿namespace BikeTracking.Shared.DTOs;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 /// </summary>
 public class EditRideRequest
 {
-    [Range(typeof(DateOnly), "2025-09-17", "2025-12-15", 
+    [Range(typeof(DateOnly), "2025-09-17", "2025-12-15",
         ErrorMessage = "Date must be between 90 days ago and today")]
     public DateOnly? Date { get; set; }
 
@@ -18,23 +18,23 @@ public class EditRideRequest
     [Range(0.1, 10000, ErrorMessage = "Distance must be between 0.1 and 10,000")]
     public decimal? Distance { get; set; }
 
-    [RegularExpression("miles|kilometers", 
+    [RegularExpression("miles|kilometers",
         ErrorMessage = "DistanceUnit must be either miles or kilometers")]
     public string? DistanceUnit { get; set; }
 
-    [StringLength(200, MinimumLength = 1, 
+    [StringLength(200, MinimumLength = 1,
         ErrorMessage = "Ride name must be between 1 and 200 characters")]
     public string? RideName { get; set; }
 
-    [StringLength(200, MinimumLength = 1, 
+    [StringLength(200, MinimumLength = 1,
         ErrorMessage = "Start location must be between 1 and 200 characters")]
     public string? StartLocation { get; set; }
 
-    [StringLength(200, MinimumLength = 1, 
+    [StringLength(200, MinimumLength = 1,
         ErrorMessage = "End location must be between 1 and 200 characters")]
     public string? EndLocation { get; set; }
 
-    [StringLength(1000, 
+    [StringLength(1000,
         ErrorMessage = "Notes cannot exceed 1000 characters")]
     public string? Notes { get; set; }
 
