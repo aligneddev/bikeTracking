@@ -42,7 +42,7 @@ We will use the latest Aspire orchestration, latest C# features, C# with .Net 10
 
 Microsoft Blazor .Net 10 for the front end (with responsive design and and simple UX. The user will login with an OAUTH identity (look up information in MS Learn https://learn.microsoft.com/en-us/aspnet/core/blazor/security/?view=aspnetcore-10). The user will have access to only their data and publicly available (use the latest Blazor FluentUI v4.13.2 https://www.fluentui-blazor.net/, componentize with "Design Tokens", create a DesignTheme using these colors for a palette "FFCDA4, FFB170, FF7400, D96200, A74C00" to follow our branding)).
 
-The database will be an Azure SQL database. We will use the new SDK style database project to handle all database changes. Following Event Sourcing, create tables to store each event. Current projections will be created in a background Azure Function listening for Change Event Streaming Events (CES) and stored in a different read only table.
+The database will be an Azure SQL database. We will use the new SDK style database project to handle all database changes. Use the latest Entity Framework Core. Following Event Sourcing, create tables to store each event. Current projections will be created in a background Azure Function listening for Change Event Streaming Events (CES) and stored in a different read only table.
 
 The application will be hosted in Azure.  With Aspire, host the application in Azure Container Apps. Use Managed Identity. All secrets must be in the Azure Secret Manager.
 
@@ -59,3 +59,11 @@ It will also give an estimate of the total savings based on the mileage rate and
 The product will also have a feature to track the number of rides and the average distance per ride. 
 We will show some charts and graphs to visualize the miles and savings. 
 The user will be able to see these for the current year, the total for all the years and be able to drill into each month or day.
+
+## Links To Share
+
+- https://den.dev/blog/github-spec-kit/
+- Read the philosphy at https://github.com/github/spec-kit/blob/main/spec-driven.md#streamlining-sdd-with-commands
+- Playlist of training videos - https://www.youtube.com/watch?v=pijfhJ725hY&list=PL4cUxeGkcC9h9RbDpG8ZModUzwy45tLjb
+- https://www.youtube.com/@DenDev is a maintainer and has many videos on SpecKit
+- https://developer.microsoft.com/blog/spec-driven-development-spec-kit
