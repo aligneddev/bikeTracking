@@ -14,6 +14,42 @@ namespace BikeTracking.Infrastructure.Services;
 /// </summary>
 public class NoaaWeatherService : IWeatherService
 {
+    private static readonly Action<ILogger, decimal, decimal, DateOnly, int, Exception?> _logFetchingWeather =
+        LoggerMessage.Define<decimal, decimal, DateOnly, int>(
+            logLevel: LogLevel.Information,
+            eventId: new EventId(1, nameof(GetHistoricalWeatherAsync)),
+            formatString: "Fetching weather for {Latitude},{Longitude} on {Date} at {Hour}:00");
+
+    private static readonly Action<ILogger, object, decimal, decimal, Exception?> _logNoaaApiReturnedStatus =
+        LoggerMessage.Define<object, decimal, decimal>(
+            logLevel: LogLevel.Warning,
+            eventId: new EventId(2, nameof(GetHistoricalWeatherAsync)),
+            formatString: "NOAA API returned {StatusCode} for {Latitude},{Longitude}");
+
+    private static readonly Action<ILogger, decimal, decimal, Exception?> _logNoaaApiNoPeriods =
+        LoggerMessage.Define<decimal, decimal>(
+            logLevel: LogLevel.Warning,
+            eventId: new EventId(3, nameof(GetHistoricalWeatherAsync)),
+            formatString: "NOAA API returned no periods for {Latitude},{Longitude}");
+
+    private static readonly Action<ILogger, int, Exception?> _logNoWeatherDataForHour =
+        LoggerMessage.Define<int>(
+            logLevel: LogLevel.Warning,
+            eventId: new EventId(4, nameof(GetHistoricalWeatherAsync)),
+            formatString: "No weather data found for hour {Hour}");
+
+    private static readonly Action<ILogger, Exception?> _logHttpError =
+        LoggerMessage.Define(
+            logLevel: LogLevel.Error,
+            eventId: new EventId(5, nameof(GetHistoricalWeatherAsync)),
+            formatString: "HTTP error fetching weather data");
+
+    private static readonly Action<ILogger, Exception?> _logUnexpectedError =
+        LoggerMessage.Define(
+            logLevel: LogLevel.Error,
+            eventId: new EventId(6, nameof(GetHistoricalWeatherAsync)),
+            formatString: "Unexpected error fetching weather data");
+
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<NoaaWeatherService> _logger;
@@ -42,18 +78,16 @@ public class NoaaWeatherService : IWeatherService
     public async Task<Weather?> GetHistoricalWeatherAsync(
         decimal latitude,
         decimal longitude,
-        DateOnly date,
+        DateOnly rideDate,
         int hour,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            _logger.LogInformation(
-                "Fetching weather for {Latitude},{Longitude} on {Date} at {Hour}:00",
-                latitude, longitude, date, hour);
+            _logFetchingWeather(_logger, latitude, longitude, rideDate, hour, null);
 
             // Construct request timestamp (NOAA requires ISO 8601 format)
-            var requestDateTime = date.ToDateTime(new TimeOnly(hour, 0));
+            var requestDateTime = rideDate.ToDateTime(new TimeOnly(hour, 0));
             var endDateTime = requestDateTime.AddHours(1);
 
             // NOAA Weather API endpoint for point forecast
@@ -63,9 +97,7 @@ public class NoaaWeatherService : IWeatherService
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning(
-                    "NOAA API returned {StatusCode} for {Latitude},{Longitude}",
-                    response.StatusCode, latitude, longitude);
+                _logNoaaApiReturnedStatus(_logger, response.StatusCode, latitude, longitude, null);
                 return CreateGracefulWeather();
             }
 
@@ -73,7 +105,7 @@ public class NoaaWeatherService : IWeatherService
 
             if (weatherResponse?.Properties?.Periods == null || weatherResponse.Properties.Periods.Count == 0)
             {
-                _logger.LogWarning("NOAA API returned no periods for {Latitude},{Longitude}", latitude, longitude);
+                _logNoaaApiNoPeriods(_logger, latitude, longitude, null);
                 return CreateGracefulWeather();
             }
 
@@ -83,7 +115,7 @@ public class NoaaWeatherService : IWeatherService
 
             if (targetPeriod == null)
             {
-                _logger.LogWarning("No weather data found for hour {Hour}", hour);
+                _logNoWeatherDataForHour(_logger, hour, null);
                 return CreateGracefulWeather();
             }
 
@@ -100,12 +132,12 @@ public class NoaaWeatherService : IWeatherService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "HTTP error fetching weather data");
+            _logHttpError(_logger, ex);
             return CreateGracefulWeather();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error fetching weather data");
+            _logUnexpectedError(_logger, ex);
             return CreateGracefulWeather();
         }
     }

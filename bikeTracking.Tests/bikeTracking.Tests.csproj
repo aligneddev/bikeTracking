@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\bikeTracking.AppHost\bikeTracking.AppHost.csproj" />
     <ProjectReference Include="..\BikeTracking.Domain\BikeTracking.Domain.csproj" />
+    <ProjectReference Include="..\BikeTracking.Shared\BikeTracking.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
