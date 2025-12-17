@@ -94,21 +94,21 @@
 
 ### Implementation for User Story 2
 
-- [ ] T040 [P] [US2] Create RideEdited domain event at src/BikeTracking.Domain/Events/RideEdited.cs (captures changed fields JSON)
-- [ ] T041 [P] [US2] Create EditRideRequest DTO at src/BikeTracking.Shared/DTOs/EditRideRequest.cs with DataAnnotations validation
-- [ ] T042 [P] [US2] Create GetUserRidesQuery DTO at src/BikeTracking.Shared/DTOs/GetUserRidesQuery.cs (pagination support)
-- [ ] T043 [P] [US2] Create RideListItemResponse DTO at src/BikeTracking.Shared/DTOs/RideListItemResponse.cs (summary view: name, locations, distance, age)
-- [ ] T044 [US2] Implement EditRideCommand handler at src/BikeTracking.Domain/Commands/EditRideCommandHandler.cs (detects changed fields, optionally fetches weather)
-- [ ] T045 [US2] Implement GET /api/rides endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs (returns user's rides with pagination)
-- [ ] T046 [US2] Implement GET /api/rides/{rideId} endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs (returns full ride details)
-- [ ] T047 [US2] Implement PUT /api/rides/{rideId} endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs (validates 90-day constraint, re-fetches weather if date/hour changed)
-- [ ] T048 [US2] Create RideList.razor Blazor component at src/BikeTracking.Blazor/Pages/RideList.razor (displays rides with name, start, end, distance, age)
-- [ ] T049 [US2] Add pagination controls (prev/next, page size selector) to RideList.razor
-- [ ] T050 [US2] Add "Edit" button per ride in RideList.razor navigating to RideEditor.razor
-- [ ] T051 [US2] Create RideEditor.razor Blazor component at src/BikeTracking.Blazor/Pages/RideEditor.razor (loads existing ride, pre-fills form)
-- [ ] T052 [US2] Implement cancel button in RideEditor.razor (navigates back without saving)
-- [ ] T053 [US2] Implement save button in RideEditor.razor calling PUT /api/rides/{rideId} with change detection
-- [ ] T054 [US2] Add weather re-fetch indicator in RideEditor.razor when date/hour changed
+- [x] T040 [P] [US2] Create RideEdited domain event at src/BikeTracking.Domain/Events/RideEdited.cs (captures changed fields JSON)
+- [x] T041 [P] [US2] Create EditRideRequest DTO at src/BikeTracking.Shared/DTOs/EditRideRequest.cs with DataAnnotations validation
+- [x] T042 [P] [US2] Create GetUserRidesQuery DTO at src/BikeTracking.Shared/DTOs/GetUserRidesQuery.cs (pagination support)
+- [x] T043 [P] [US2] Create RideListItemResponse DTO at src/BikeTracking.Shared/DTOs/RideListItemResponse.cs (summary view: name, locations, distance, age)
+- [x] T044 [US2] Implement EditRideCommand handler at src/BikeTracking.Domain/Commands/EditRideCommandHandler.cs (detects changed fields, optionally fetches weather)
+- [x] T045 [US2] Implement GET /api/rides endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs (returns user's rides with pagination)
+- [x] T046 [US2] Implement GET /api/rides/{rideId} endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs (returns full ride details)
+- [x] T047 [US2] Implement PUT /api/rides/{rideId} endpoint at src/BikeTracking.Api/Endpoints/RidesEndpoints.cs (validates 90-day constraint, re-fetches weather if date/hour changed)
+- [x] T048 [US2] Create RideList.razor Blazor component at src/BikeTracking.Blazor/Pages/RideList.razor (displays rides with name, start, end, distance, age)
+- [x] T049 [US2] Add pagination controls (prev/next, page size selector) to RideList.razor
+- [x] T050 [US2] Add "Edit" button per ride in RideList.razor navigating to RideEditor.razor
+- [x] T051 [US2] Create RideEditor.razor Blazor component at src/BikeTracking.Blazor/Pages/RideEditor.razor (loads existing ride, pre-fills form)
+- [x] T052 [US2] Implement cancel button in RideEditor.razor (navigates back without saving)
+- [x] T053 [US2] Implement save button in RideEditor.razor calling PUT /api/rides/{rideId} with change detection
+- [x] T054 [US2] Add weather re-fetch indicator in RideEditor.razor when date/hour changed
 
 **Checkpoint**: Users can view ride list and edit any ride with all changes persisted
 
@@ -336,3 +336,4 @@
 **Independent Testing**: Each user story can be tested independently per acceptance criteria in spec.md
 
 **Implementation Strategy**: MVP-first (US1-US2), incremental delivery (US3-US7), parallelizable within constraints
+

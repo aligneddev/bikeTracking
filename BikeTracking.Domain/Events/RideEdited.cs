@@ -1,5 +1,7 @@
 namespace BikeTracking.Domain.Events;
 
+using BikeTracking.Domain.ValueObjects;
+
 /// <summary>
 /// Domain event: Ride was edited (T040).
 /// Captures all changed field names in JSON and new values.
