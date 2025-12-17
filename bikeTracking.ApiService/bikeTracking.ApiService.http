@@ -14,15 +14,7 @@ GET {{ApiService_HostAddress}}/api/rides?page=1&pageSize=50
 POST {{ApiService_HostAddress}}/api/rides
 Content-Type: application/json
 
-{
-  "date": "2025-12-16",
-  "hour": 14.5,
-  "distance": 25.3,
-  "distanceUnit": "miles",
-  "rideName": "Afternoon Trail Ride",
-  "startLocation": "Downtown Park",
-  "endLocation": "Riverfront Trail",
-  "notes": "Beautiful weather, smooth ride",
+{"date":"2025-12-16","hour":10,"distance":12,"distanceUnit":"miles","rideName":"AM","startLocation":"Home","endLocation":"Omnitech","notes":"mash potato snow"
   "latitude": 40.7128,
   "longitude": -74.0060
 }
