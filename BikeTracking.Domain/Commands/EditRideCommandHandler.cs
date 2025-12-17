@@ -2,6 +2,7 @@
 
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;
+using BikeTracking.Domain.Results;
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;
 
@@ -18,8 +19,9 @@ public class EditRideCommandHandler(IWeatherService weatherService)
     /// <summary>
     /// Handles ride edit command and generates RideEdited event.
     /// Re-fetches weather if date or hour changed.
+    /// Uses functional Result pattern for error handling.
     /// </summary>
-    public async Task<(RideEdited rideEdited, DomainEvent[] additionalEvents)> HandleAsync(
+    public async Task<Result<(RideEdited rideEdited, DomainEvent[] additionalEvents)>> HandleAsync(
         Guid rideId,
         string userId,
         RideProjection currentRide,
@@ -36,13 +38,15 @@ public class EditRideCommandHandler(IWeatherService weatherService)
         CancellationToken cancellationToken = default
     )
     {
-        // Detect which fields changed
-        var changedFields = new List<string>();
-        if (currentRide == null)
+        // Validate current ride is not null
+        if (currentRide is null)
         {
-            throw new ArgumentNullException(nameof(currentRide), "Current ride projection cannot be null.");
+            return new Result<(RideEdited, DomainEvent[])>.Failure(
+                Error.NotFound("currentRide was null; ride not found"));
         }
 
+        // Detect which fields changed
+        var changedFields = new List<string>();
         if (newDate.HasValue && newDate != currentRide.Date)
             changedFields.Add(nameof(currentRide.Date));
         if (newHour.HasValue && newHour != currentRide.Hour)
@@ -77,9 +81,10 @@ public class EditRideCommandHandler(IWeatherService weatherService)
             ModifiedTimestamp = DateTime.UtcNow,
         };
 
-        if (!updatedRide.IsValid(out var validationError))
+        var validationResult = updatedRide.Validate();
+        if (validationResult is Result<Unit>.Failure validationFailure)
         {
-            throw new InvalidOperationException($"Ride validation failed: {validationError}");
+            return new Result<(RideEdited, DomainEvent[])>.Failure(validationFailure.Error);
         }
 
         // Step 2: Fetch new weather if date/hour changed
@@ -170,6 +175,7 @@ public class EditRideCommandHandler(IWeatherService weatherService)
             NewWeatherData = newWeatherData,
         };
 
-        return (rideEditedEvent, additionalEvents.ToArray());
+        return new Result<(RideEdited, DomainEvent[])>.Success(
+            (rideEditedEvent, additionalEvents.ToArray()));
     }
 }

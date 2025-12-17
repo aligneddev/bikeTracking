@@ -1,5 +1,6 @@
 ﻿using BikeTracking.Domain.Commands;
 using BikeTracking.Domain.Events;
+using BikeTracking.Domain.Results;
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;
 
@@ -44,11 +45,16 @@ public class CreateRideCommandHandlerTests
         var notes = "DEMO_Nice ride";
 
         // Act
-        var (rideCreated, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             rideId, userId, date, hour, distance, distanceUnit,
             rideName, startLocation, endLocation, notes, null, null);
 
         // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Success>());
+
+        var success = result as Result<(RideCreated, DomainEvent[])>.Success;
+        var (rideCreated, additionalEvents) = success!.Value;
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(rideCreated, Is.Not.Null);
@@ -99,11 +105,15 @@ public class CreateRideCommandHandlerTests
             .Returns(expectedWeather);
 
         // Act
-        var (rideCreated, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             rideId, userId, date, hour, 10.0m, "miles",
             "DEMO_Test Ride", "DEMO_Start", "DEMO_End", null, latitude, longitude);
 
         // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Success>());
+        var success = result as Result<(RideCreated, DomainEvent[])>.Success;
+        var (rideCreated, additionalEvents) = success!.Value;
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(rideCreated.WeatherData, Is.EqualTo(expectedWeather));
@@ -141,11 +151,15 @@ public class CreateRideCommandHandlerTests
             .Returns((Weather?)null);
 
         // Act
-        var (rideCreated, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             rideId, userId, date, hour, 8.0m, "kilometers",
             "DEMO_Morning Commute", "DEMO_Home", "DEMO_Office", null, latitude, longitude);
 
         // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Success>());
+        var success = result as Result<(RideCreated, DomainEvent[])>.Success;
+        var (rideCreated, additionalEvents) = success!.Value;
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(rideCreated.WeatherData, Is.Null);
@@ -178,11 +192,15 @@ public class CreateRideCommandHandlerTests
             .Returns(unavailableWeather);
 
         // Act
-        var (rideCreated, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             rideId, userId, date, hour, 15.0m, "miles",
             "DEMO_Evening Ride", "DEMO_Beach", "DEMO_Home", null, latitude, longitude);
 
         // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Success>());
+        var success = result as Result<(RideCreated, DomainEvent[])>.Success;
+        var (rideCreated, additionalEvents) = success!.Value;
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(rideCreated, Is.Not.Null);
@@ -210,11 +228,15 @@ public class CreateRideCommandHandlerTests
             .Returns<Weather?>(_ => throw new HttpRequestException("NOAA API timeout"));
 
         // Act
-        var (rideCreated, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             rideId, userId, date, hour, 20.0m, "kilometers",
             "DEMO_Long Ride", "DEMO_City", "DEMO_Suburb", "DEMO_Windy day", latitude, longitude);
 
         // Assert - Ride creation should succeed despite weather failure
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Success>());
+        var success = result as Result<(RideCreated, DomainEvent[])>.Success;
+        var (rideCreated, additionalEvents) = success!.Value;
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(rideCreated, Is.Not.Null);
@@ -233,7 +255,7 @@ public class CreateRideCommandHandlerTests
     #region Validation Tests
 
     [Test]
-    public void WhenInvalidRideDataThenThrowsInvalidOperationException()
+    public async Task WhenInvalidRideDataThenReturnsValidationFailure()
     {
         // Arrange - Future date violates validation
         var rideId = Guid.NewGuid();
@@ -241,18 +263,24 @@ public class CreateRideCommandHandlerTests
         var futureDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
         var hour = 14;
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _handler.HandleAsync(
-                rideId, userId, futureDate, hour, 10.0m, "miles",
-                "DEMO_Invalid Ride", "DEMO_Start", "DEMO_End", null, null, null));
+        // Act
+        var result = await _handler.HandleAsync(
+            rideId, userId, futureDate, hour, 10.0m, "miles",
+            "DEMO_Invalid Ride", "DEMO_Start", "DEMO_End", null, null, null);
 
-        Assert.That(ex?.Message, Does.Contain("Ride validation failed"));
-        Assert.That(ex?.Message, Does.Contain("Date cannot be in the future"));
+        // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Failure>());
+        var failure = result as Result<(RideCreated, DomainEvent[])>.Failure;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(failure!.Error.Code, Is.EqualTo("VALIDATION_FAILED"));
+            Assert.That(failure.Error.Message, Does.Contain("Date cannot be in the future"));
+            Assert.That(failure.Error.Severity, Is.EqualTo(ErrorSeverity.Warning));
+        }
     }
 
     [Test]
-    public void WhenInvalidHourThenThrowsInvalidOperationException()
+    public async Task WhenInvalidHourThenReturnsValidationFailure()
     {
         // Arrange - Hour > 23 violates validation
         var rideId = Guid.NewGuid();
@@ -260,18 +288,23 @@ public class CreateRideCommandHandlerTests
         var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5));
         var invalidHour = 25;
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _handler.HandleAsync(
-                rideId, userId, date, invalidHour, 10.0m, "miles",
-                "DEMO_Invalid Hour", "DEMO_Start", "DEMO_End", null, null, null));
+        // Act
+        var result = await _handler.HandleAsync(
+            rideId, userId, date, invalidHour, 10.0m, "miles",
+            "DEMO_Invalid Hour", "DEMO_Start", "DEMO_End", null, null, null);
 
-        Assert.That(ex?.Message, Does.Contain("Ride validation failed"));
-        Assert.That(ex?.Message, Does.Contain("Hour must be between 0 and 23"));
+        // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Failure>());
+        var failure = result as Result<(RideCreated, DomainEvent[])>.Failure;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(failure!.Error.Code, Is.EqualTo("VALIDATION_FAILED"));
+            Assert.That(failure.Error.Message, Does.Contain("Hour must be between 0 and 23"));
+        }
     }
 
     [Test]
-    public void WhenEmptyRideNameThenThrowsInvalidOperationException()
+    public async Task WhenEmptyRideNameThenReturnsValidationFailure()
     {
         // Arrange - Empty RideName violates validation
         var rideId = Guid.NewGuid();
@@ -279,14 +312,19 @@ public class CreateRideCommandHandlerTests
         var date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-2));
         var hour = 10;
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _handler.HandleAsync(
-                rideId, userId, date, hour, 10.0m, "miles",
-                "", "DEMO_Start", "DEMO_End", null, null, null));
+        // Act
+        var result = await _handler.HandleAsync(
+            rideId, userId, date, hour, 10.0m, "miles",
+            "", "DEMO_Start", "DEMO_End", null, null, null);
 
-        Assert.That(ex?.Message, Does.Contain("Ride validation failed"));
-        Assert.That(ex?.Message, Does.Contain("Ride name is required"));
+        // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideCreated, DomainEvent[])>.Failure>());
+        var failure = result as Result<(RideCreated, DomainEvent[])>.Failure;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(failure!.Error.Code, Is.EqualTo("VALIDATION_FAILED"));
+            Assert.That(failure.Error.Message, Does.Contain("Ride name is required"));
+        }
     }
 
     #endregion

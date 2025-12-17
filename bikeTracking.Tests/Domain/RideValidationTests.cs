@@ -1,9 +1,10 @@
 ﻿using BikeTracking.Domain.Entities;
+using BikeTracking.Domain.Results;
 
 namespace bikeTracking.Tests.Domain;
 
 /// <summary>
-/// Unit tests for Ride.IsValid() validation rules.
+/// Unit tests for Ride.Validate() validation rules.
 /// Tests pure business logic with no infrastructure dependencies.
 /// Coverage: Date validation (90-day window), Hour validation (0-23),
 /// Distance/Unit validation, Required fields, Character limits.
@@ -25,7 +26,7 @@ public class RideValidationTests
             StartLocation = "DEMO_Home",
             EndLocation = "DEMO_Office",
             Notes = "DEMO_Test ride notes",
-            CreatedTimestamp = DateTime.UtcNow
+            CreatedTimestamp = DateTime.UtcNow,
         };
     }
 
@@ -39,14 +40,12 @@ public class RideValidationTests
         ride.Date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Date cannot be in the future."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Date cannot be in the future."));
     }
 
     [Test]
@@ -57,14 +56,15 @@ public class RideValidationTests
         ride.Date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-91));
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Ride date must be within the last 90 days."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(
+            failure!.Error.Message,
+            Is.EqualTo("Ride date must be within the last 90 days.")
+        );
     }
 
     [Test]
@@ -75,14 +75,10 @@ public class RideValidationTests
         ride.Date = DateOnly.FromDateTime(DateTime.UtcNow);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -93,14 +89,10 @@ public class RideValidationTests
         ride.Date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-90));
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -111,14 +103,10 @@ public class RideValidationTests
         ride.Date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-45)); // Middle of valid range
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     #endregion
@@ -133,14 +121,12 @@ public class RideValidationTests
         ride.Hour = -1;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Hour must be between 0 and 23."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Hour must be between 0 and 23."));
     }
 
     [Test]
@@ -151,14 +137,12 @@ public class RideValidationTests
         ride.Hour = 24;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Hour must be between 0 and 23."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Hour must be between 0 and 23."));
     }
 
     [Test]
@@ -169,14 +153,10 @@ public class RideValidationTests
         ride.Hour = 0;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -187,14 +167,10 @@ public class RideValidationTests
         ride.Hour = 23;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -205,14 +181,10 @@ public class RideValidationTests
         ride.Hour = 12;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     #endregion
@@ -227,14 +199,12 @@ public class RideValidationTests
         ride.Distance = 0m;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Distance must be greater than zero."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Distance must be greater than zero."));
     }
 
     [Test]
@@ -245,14 +215,12 @@ public class RideValidationTests
         ride.Distance = -5.5m;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Distance must be greater than zero."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Distance must be greater than zero."));
     }
 
     [Test]
@@ -263,14 +231,10 @@ public class RideValidationTests
         ride.Distance = 15.7m;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     #endregion
@@ -285,14 +249,10 @@ public class RideValidationTests
         ride.DistanceUnit = "miles";
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -303,14 +263,10 @@ public class RideValidationTests
         ride.DistanceUnit = "kilometers";
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -321,14 +277,15 @@ public class RideValidationTests
         ride.DistanceUnit = "meters";
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Distance unit must be 'miles' or 'kilometers'."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(
+            failure!.Error.Message,
+            Is.EqualTo("Distance unit must be 'miles' or 'kilometers'.")
+        );
     }
 
     [Test]
@@ -339,14 +296,15 @@ public class RideValidationTests
         ride.DistanceUnit = string.Empty;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Distance unit must be 'miles' or 'kilometers'."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(
+            failure!.Error.Message,
+            Is.EqualTo("Distance unit must be 'miles' or 'kilometers'.")
+        );
     }
 
     #endregion
@@ -361,14 +319,12 @@ public class RideValidationTests
         ride.RideName = string.Empty;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Ride name is required."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Ride name is required."));
     }
 
     [Test]
@@ -379,14 +335,12 @@ public class RideValidationTests
         ride.RideName = "   ";
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Ride name is required."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Ride name is required."));
     }
 
     [Test]
@@ -397,14 +351,12 @@ public class RideValidationTests
         ride.StartLocation = string.Empty;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Start location is required."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Start location is required."));
     }
 
     [Test]
@@ -415,14 +367,12 @@ public class RideValidationTests
         ride.StartLocation = "   ";
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Start location is required."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Start location is required."));
     }
 
     [Test]
@@ -433,14 +383,12 @@ public class RideValidationTests
         ride.EndLocation = string.Empty;
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("End location is required."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("End location is required."));
     }
 
     [Test]
@@ -451,14 +399,12 @@ public class RideValidationTests
         ride.EndLocation = "   ";
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("End location is required."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("End location is required."));
     }
 
     #endregion
@@ -473,14 +419,12 @@ public class RideValidationTests
         ride.RideName = new string('A', 201);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Ride name cannot exceed 200 characters."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(failure!.Error.Message, Is.EqualTo("Ride name cannot exceed 200 characters."));
     }
 
     [Test]
@@ -491,14 +435,10 @@ public class RideValidationTests
         ride.RideName = new string('A', 200);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -509,14 +449,15 @@ public class RideValidationTests
         ride.StartLocation = new string('B', 201);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("Start location cannot exceed 200 characters."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(
+            failure!.Error.Message,
+            Is.EqualTo("Start location cannot exceed 200 characters.")
+        );
     }
 
     [Test]
@@ -527,14 +468,10 @@ public class RideValidationTests
         ride.StartLocation = new string('B', 200);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     [Test]
@@ -545,14 +482,15 @@ public class RideValidationTests
         ride.EndLocation = new string('C', 201);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.False);
-            Assert.That(error, Is.EqualTo("End location cannot exceed 200 characters."));
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Failure>());
+        var failure = result as Result<Unit>.Failure;
+        Assert.That(
+            failure!.Error.Message,
+            Is.EqualTo("End location cannot exceed 200 characters.")
+        );
     }
 
     [Test]
@@ -563,14 +501,10 @@ public class RideValidationTests
         ride.EndLocation = new string('C', 200);
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     #endregion
@@ -593,18 +527,14 @@ public class RideValidationTests
             StartLocation = "DEMO_Downtown",
             EndLocation = "DEMO_Suburb",
             Notes = "DEMO_Beautiful weather, smooth ride",
-            CreatedTimestamp = DateTime.UtcNow
+            CreatedTimestamp = DateTime.UtcNow,
         };
 
         // Act
-        var isValid = ride.IsValid(out var error);
+        var result = ride.Validate();
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(isValid, Is.True);
-            Assert.That(error, Is.Empty);
-        }
+        Assert.That(result, Is.InstanceOf<Result<Unit>.Success>());
     }
 
     #endregion

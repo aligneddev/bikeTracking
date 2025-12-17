@@ -3,6 +3,7 @@
 using BikeTracking.Domain.Commands;
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;
+using BikeTracking.Domain.Results;
 using BikeTracking.Infrastructure.Repositories;
 using BikeTracking.Shared.DTOs;
 
@@ -17,11 +18,11 @@ public static class RidesEndpoints
     {
         var group = app.MapGroup("/api/rides");
 
-        group.MapPost("/", CreateRideAsync).RequireAuthorization().WithName("CreateRide");
-        group.MapGet("/", GetUserRidesAsync).RequireAuthorization().WithName("GetUserRides");
-        group.MapGet("/{rideId}", GetRideDetailsAsync).RequireAuthorization().WithName("GetRideDetails");
-        group.MapPut("/{rideId}", EditRideAsync).RequireAuthorization().WithName("EditRide");
-        group.MapDelete("/{rideId}", DeleteRideAsync).RequireAuthorization().WithName("DeleteRide");
+        _ = group.MapPost("/", CreateRideAsync).RequireAuthorization().WithName("CreateRide");
+        _ = group.MapGet("/", GetUserRidesAsync).RequireAuthorization().WithName("GetUserRides");
+        _ = group.MapGet("/{rideId}", GetRideDetailsAsync).RequireAuthorization().WithName("GetRideDetails");
+        _ = group.MapPut("/{rideId}", EditRideAsync).RequireAuthorization().WithName("EditRide");
+        _ = group.MapDelete("/{rideId}", DeleteRideAsync).RequireAuthorization().WithName("DeleteRide");
     }
 
     private static async Task<IResult> CreateRideAsync(
@@ -31,15 +32,18 @@ public static class RidesEndpoints
         IRideProjectionRepository projectionRepository,
         ClaimsPrincipal user)
     {
-        try
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new UnauthorizedAccessException("User ID not found");
+        var rideId = Guid.NewGuid();
+
+        var result = await commandHandler.HandleAsync(
+            rideId, userId, request.Date, request.Hour, request.Distance, request.DistanceUnit,
+            request.RideName, request.StartLocation, request.EndLocation, request.Notes,
+            request.Latitude, request.Longitude);
+
+        if (result is Result<(RideCreated rideCreatedEvent, DomainEvent[] additionalEvents)>.Success success)
         {
-            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User ID not found");
-            var rideId = Guid.NewGuid();
-
-            var (rideCreatedEvent, additionalEvents) = await commandHandler.HandleAsync(
-                rideId, userId, request.Date, request.Hour, request.Distance, request.DistanceUnit,
-                request.RideName, request.StartLocation, request.EndLocation, request.Notes, request.Latitude, request.Longitude);
-
+            var (rideCreatedEvent, additionalEvents) = success.Value;
             await eventRepository.AppendEventAsync(rideCreatedEvent);
             foreach (var @event in additionalEvents)
                 await eventRepository.AppendEventAsync(@event);
@@ -91,8 +95,19 @@ public static class RidesEndpoints
 
             return Results.Created($"/api/rides/{rideId}", response);
         }
-        catch (InvalidOperationException ex) { return Results.BadRequest(new { error = ex.Message }); }
-        catch (Exception ex) { return Results.Problem(detail: ex.Message, statusCode: 500); }
+
+        if (result is Result<(RideCreated, DomainEvent[])>.Failure failure)
+        {
+            return failure.Error.Severity switch
+            {
+                ErrorSeverity.Warning => Results.BadRequest(new { code = failure.Error.Code, message = failure.Error.Message }),
+                ErrorSeverity.Error => Results.Problem(detail: failure.Error.Message, statusCode: 500),
+                ErrorSeverity.Critical => Results.Problem(detail: failure.Error.Message, statusCode: 503),
+                _ => Results.Problem()
+            };
+        }
+
+        return Results.Problem();
     }
 
     private static async Task<IResult> GetUserRidesAsync(
@@ -157,17 +172,20 @@ public static class RidesEndpoints
         Guid rideId, EditRideRequest request, EditRideCommandHandler commandHandler,
         IEventStoreRepository eventRepository, IRideProjectionRepository projectionRepository, ClaimsPrincipal user)
     {
-        try
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new UnauthorizedAccessException("User ID not found");
+        var currentRide = await projectionRepository.GetByIdAsync(rideId);
+        if (currentRide == null) return Results.NotFound();
+        if (currentRide.UserId != userId) return Results.Forbid();
+
+        var result = await commandHandler.HandleAsync(
+            rideId, userId, currentRide, request.Date, request.Hour, request.Distance, request.DistanceUnit,
+            request.RideName, request.StartLocation, request.EndLocation, request.Notes,
+            request.Latitude, request.Longitude);
+
+        if (result is Result<(RideEdited rideEditedEvent, DomainEvent[] additionalEvents)>.Success success)
         {
-            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User ID not found");
-            var currentRide = await projectionRepository.GetByIdAsync(rideId);
-            if (currentRide == null) return Results.NotFound();
-            if (currentRide.UserId != userId) return Results.Forbid();
-
-            (RideEdited rideEditedEvent, DomainEvent[] additionalEvents) = await commandHandler.HandleAsync(
-                rideId, userId, currentRide, request.Date, request.Hour, request.Distance, request.DistanceUnit,
-                request.RideName, request.StartLocation, request.EndLocation, request.Notes, request.Latitude, request.Longitude);
-
+            var (rideEditedEvent, additionalEvents) = success.Value;
             await eventRepository.AppendEventAsync(rideEditedEvent);
             foreach (var @event in additionalEvents)
                 await eventRepository.AppendEventAsync(@event);
@@ -183,7 +201,7 @@ public static class RidesEndpoints
             if (rideEditedEvent.NewWeatherData != null) currentRide.WeatherData = rideEditedEvent.NewWeatherData;
             currentRide.ModifiedTimestamp = rideEditedEvent.Timestamp;
 
-            await projectionRepository.UpdateAsync(currentRide);
+            _ = await projectionRepository.UpdateAsync(currentRide);
 
             var response = new RideResponse
             {
@@ -213,34 +231,34 @@ public static class RidesEndpoints
             };
             return Results.Ok(response);
         }
-        catch (InvalidOperationException ex) { return Results.BadRequest(new { error = ex.Message }); }
-        catch (Exception ex) { return Results.Problem(detail: ex.Message, statusCode: 500); }
+
+        if (result is Result<(RideEdited, DomainEvent[])>.Failure failure)
+        {
+            return failure.Error.Severity switch
+            {
+                ErrorSeverity.Warning => Results.BadRequest(new { code = failure.Error.Code, message = failure.Error.Message }),
+                ErrorSeverity.Error => Results.Problem(detail: failure.Error.Message, statusCode: 500),
+                ErrorSeverity.Critical => Results.Problem(detail: failure.Error.Message, statusCode: 503),
+                _ => Results.Problem()
+            };
+        }
+
+        return Results.Problem();
     }
 
     private static async Task<IResult> DeleteRideAsync(
         Guid rideId, IRideProjectionRepository repository, ClaimsPrincipal user)
     {
-        try
-        {
-            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("User ID not found");
-            var ride = await repository.GetByIdAsync(rideId);
-            if (ride == null)
-            {
-                return Results.NotFound();
-            }
-            if (ride.UserId != userId)
-            {
-                return Results.Forbid();
-            }
-            if (ride.AgeInDays > 90)
-            {
-                return Results.BadRequest(new { error = "Cannot delete rides older than 90 days" });
-            }
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId)) return Results.Unauthorized();
 
-            await repository.DeleteAsync(rideId);
-            return Results.NoContent();
-        }
-        catch (Exception ex) { return Results.Problem(detail: ex.Message, statusCode: 500); }
+        var ride = await repository.GetByIdAsync(rideId);
+        if (ride == null) return Results.NotFound();
+        if (ride.UserId != userId) return Results.Forbid();
+        if (ride.AgeInDays > 90) return Results.BadRequest(new { error = "Cannot delete rides older than 90 days" });
+
+        await repository.DeleteAsync(rideId);
+        return Results.NoContent();
     }
 }
 
