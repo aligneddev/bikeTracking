@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Json;
+
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -30,7 +32,7 @@ public class NoaaWeatherService : IWeatherService
         // API token is coming in the future
         //_apiToken = _configuration["WeatherService:ApiToken"] 
         //    ?? throw new InvalidOperationException("NOAA API token not configured");
-        _baseUrl = _configuration["WeatherService:NoaaBaseUrl"] 
+        _baseUrl = _configuration["WeatherService:NoaaBaseUrl"]
             ?? "https://api.weather.gov";
 
         //_httpClient.DefaultRequestHeaders.Add("token", _apiToken);
@@ -141,17 +143,17 @@ public class NoaaWeatherService : IWeatherService
 /// <summary>
 /// NOAA Weather API response structure.
 /// </summary>
-internal class NoaaWeatherResponse
+internal sealed class NoaaWeatherResponse
 {
     public NoaaProperties? Properties { get; set; }
 }
 
-internal class NoaaProperties
+internal sealed class NoaaProperties
 {
     public List<NoaaPeriod> Periods { get; set; } = new();
 }
 
-internal class NoaaPeriod
+internal sealed class NoaaPeriod
 {
     public string StartTime { get; set; } = string.Empty;
     public decimal Temperature { get; set; }
@@ -161,7 +163,7 @@ internal class NoaaPeriod
     public NoaaValue? RelativeHumidity { get; set; }
 }
 
-internal class NoaaValue
+internal sealed class NoaaValue
 {
     public decimal? Value { get; set; }
 }

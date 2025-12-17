@@ -7,6 +7,8 @@ namespace BikeTracking.Infrastructure.Migrations;
 /// <inheritdoc />
 public partial class InitialCreate : Migration
 {
+    private static readonly string[] columns = new[] { "AggregateId", "AggregateType" };
+
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
@@ -136,7 +138,7 @@ public partial class InitialCreate : Migration
         migrationBuilder.CreateIndex(
             name: "IX_Events_AggregateId_AggregateType",
             table: "Events",
-            columns: new[] { "AggregateId", "AggregateType" });
+            columns: columns);
 
         migrationBuilder.CreateIndex(
             name: "IX_RideProjections_UserId_CreatedTimestamp",

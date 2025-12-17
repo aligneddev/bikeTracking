@@ -63,7 +63,7 @@ All user input **MUST** be validated in three layers: (1) **Client-side (Blazor)
 ### Backend & Orchestration
 - **Framework**: .NET 10 Minimal API (latest stable)
 - **Orchestration**: Microsoft Aspire (latest stable) for local and cloud development
-- **Language**: C# (latest language features: records, pattern matching, async/await)
+- **Language**: C# (latest language features: records, pattern matching, async/await, follow .editorconfig for code formatting)
 - **NuGet Discipline**: All packages must be checked monthly for updates; security patches applied immediately; major versions reviewed for breaking changes before upgrade
 
 ### Frontend
