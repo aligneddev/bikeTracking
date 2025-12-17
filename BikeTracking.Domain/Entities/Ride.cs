@@ -18,7 +18,7 @@ public class Ride
 
     public decimal Distance { get; set; }
 
-    public string DistanceUnit { get; set; } = null!; // "miles" or "kilometers"
+    public string DistanceUnit { get; set; } = "miles"; // "miles" or "kilometers"
 
     public string RideName { get; set; } = null!; // User-defined name, max 200 chars
 
