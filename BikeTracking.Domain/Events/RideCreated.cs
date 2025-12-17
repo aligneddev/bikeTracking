@@ -4,7 +4,6 @@ using BikeTracking.Domain.ValueObjects;
 
 public class RideCreated : DomainEvent
 {
-    public string UserId { get; init; } = null!;
     public DateOnly Date { get; init; }
     public int Hour { get; init; }
     public decimal Distance { get; init; }

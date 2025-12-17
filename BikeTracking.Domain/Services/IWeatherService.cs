@@ -14,14 +14,14 @@ public interface IWeatherService
     /// </summary>
     /// <param name="latitude">Location latitude</param>
     /// <param name="longitude">Location longitude</param>
-    /// <param name="date">Ride date (within 90-day window)</param>
+    /// <param name="rideDate">Ride date (within 90-day window)</param>
     /// <param name="hour">Hour of the day (0-23)</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Weather data or object with all nulls if API fails</returns>
     Task<Weather?> GetHistoricalWeatherAsync(
         decimal latitude,
         decimal longitude,
-        DateOnly date,
+        DateOnly rideDate,
         int hour,
         CancellationToken cancellationToken = default);
 }

@@ -1,5 +1,4 @@
 ﻿using BikeTracking.Domain.Commands;
-using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;

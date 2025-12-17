@@ -20,19 +20,20 @@ public class EventStoreRepository : IEventStoreRepository
     }
 
     public async Task AppendEventAsync(
-        DomainEvent @event,
+        DomainEvent domainEvent,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(domainEvent);
         var eventRecord = new Event
         {
-            EventId = @event.EventId,
-            AggregateId = @event.AggregateId,
-            AggregateType = @event.AggregateType,
-            EventType = @event.EventType,
-            EventData = System.Text.Json.JsonSerializer.Serialize(@event),
-            Timestamp = @event.Timestamp,
-            Version = @event.Version,
-            UserId = @event.UserId
+            EventId = domainEvent.EventId,
+            AggregateId = domainEvent.AggregateId,
+            AggregateType = domainEvent.AggregateType,
+            EventType = domainEvent.EventType,
+            EventData = System.Text.Json.JsonSerializer.Serialize(domainEvent),
+            Timestamp = domainEvent.Timestamp,
+            Version = domainEvent.Version,
+            UserId = domainEvent.UserId
         };
 
         _context.Events.Add(eventRecord);
@@ -68,7 +69,7 @@ public class EventStoreRepository : IEventStoreRepository
 
 public interface IEventStoreRepository
 {
-    Task AppendEventAsync(DomainEvent @event, CancellationToken cancellationToken = default);
-    Task<IEnumerable<DomainEvent>> GetEventsByAggregateIdAsync(Guid aggregateId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<DomainEvent>> GetEventsByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+    public Task AppendEventAsync(DomainEvent domainEvent, CancellationToken cancellationToken = default);
+    public Task<IEnumerable<DomainEvent>> GetEventsByAggregateIdAsync(Guid aggregateId, CancellationToken cancellationToken = default);
+    public Task<IEnumerable<DomainEvent>> GetEventsByUserIdAsync(string userId, CancellationToken cancellationToken = default);
 }
