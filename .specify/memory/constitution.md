@@ -1,13 +1,15 @@
 # Bike Tracking Application Constitution
-<!-- Sync Impact Report v1.1.0 → v1.1.1
-Version Change: PATCH (1.1.1)
-Rationale: Added Entity Framework Core as the ORM technology for data access, clarifying implementation approach within existing architecture
+<!-- Sync Impact Report v1.1.1 → v1.2.0
+Version Change: MINOR (1.2.0)
+Rationale: Added new Principle VII (Data Validation ;& Integrity) establishing DataAnnotationsAttributes validation discipline across frontend and backend. Added data naming conventions (SAMPLE_/DEMO_ prefixes) and approved Playwright MCP for E2E testing. Materially expands governance for data quality without changing existing principles.
 Modified Sections:
-- Data & Persistence: Added Entity Framework Core specification for data access layer
-- Database Tests: Added EF Core configuration validation
-- Testing Strategy: Added EF Core-specific test scenarios
+- Added Principle VII: Data Validation & Integrity (client-side, server-side, database constraints)
+- Development Workflow: Added "Data Naming Conventions" subsection with SAMPLE_/DEMO_ prefix rules
+- Approved MCP Tools: Added new "Testing & Quality Assurance" category with Playwright MCP
+- Governance: Updated Compliance Review to include data validation audits
 Status: All changes approved by user; no deferred items
 Previous Updates:
+- v1.1.1 (2025-12-15): Added Entity Framework Core specification, EF Core testing strategy
 - v1.1.0 (2025-12-11): Added Test Plan Phase, NuGet Package Discipline, and 3 MCP tools (monitor, resourcehealth, role)
 - v1.0.0 (2025-12-11): Initial ratification with 6 core principles and 14 MCP tools
 -->
@@ -50,6 +52,12 @@ API response times must remain **<500ms at p95** under normal load; database ind
 
 **Rationale**: Sub-500ms response ensures fluid UX; scalable projections decouple write and read performance; structured observability enables rapid incident response; Container Apps autoscaling handles demand spikes.
 
+### VII. Data Validation & Integrity
+
+All user input **MUST** be validated in three layers: (1) **Client-side (Blazor)** using Microsoft DataAnnotationsAttributes for immediate feedback and UX responsiveness; (2) **Server-side (Minimal API)** using DataAnnotationsAttributes with attribute-based validation on command/event DTOs; (3) **Database layer** via constraints (NOT NULL, UNIQUE, FOREIGN KEY, CHECK). Validation rules enforced consistently across frontend and backend—if a field is required in Blazor form, the API endpoint MUST also enforce that constraint via data annotations. No data enters the system without validation. Referenced documentation: https://learn.microsoft.com/en-us/aspnet/core/blazor/forms/validation
+
+**Rationale**: Defense-in-depth prevents invalid data from corrupting event store or projections; client-side validation improves UX responsiveness; server-side validation prevents bypass attacks; database constraints provide last-line guarantees. Combined approach ensures data integrity without redundant checks.
+
 ## Technology Stack Requirements
 
 ### Backend & Orchestration
@@ -63,6 +71,7 @@ API response times must remain **<500ms at p95** under normal load; database ind
 - **UI Library**: Fluent UI Blazor v4.13.2 (or latest patch within v4.13.x)
 - **Authentication**: OAuth (via Microsoft.AspNetCore.Authentication.OpenIdConnect)
 - **Design System**: Centralized DesignTheme with design tokens; theme colors locked to brand palette
+- **Validation**: Microsoft DataAnnotationsAttributes for form validation (see Principle VII)
 
 ### Data & Persistence
 - **Primary Database**: Azure SQL Database (serverless elastic pools in production)
@@ -96,11 +105,23 @@ Each specification defines a **complete, deployable vertical slice**:
 - **Deployment**: Tested locally via Aspire, deployable to Azure Container Apps
 
 Example: "User records a bike ride" slice includes:
-- Blazor form component (RideRecorder.razor, styled with DesignTheme)
-- POST /rides API endpoint (command handler)
+- Blazor form component (RideRecorder.razor, styled with DesignTheme, with DataAnnotationsAttributes validation)
+- POST /rides API endpoint (command handler with DataAnnotationsAttributes on DTO)
 - Events table with RideRecorded event; Projections table (RideProjection)
 - Background function listening to CES to update RideProjection
 - Aspire host configuration; Bicep template for Container Apps
+
+### Data Naming Conventions
+
+All data created during development **MUST** follow strict naming conventions to ensure test data is never deployed to production:
+
+- **SAMPLE_**: Prefix all representative, realistic sample data (e.g., SAMPLE_Ride_CoastalCommute, SAMPLE_User_AlexJones). Sample data demonstrates expected data shapes and is used for documentation and demos.
+- **DEMO_**: Prefix all dummy, placeholder, or throwaway test data (e.g., DEMO_Ride_12345, DEMO_ExpenseTemp). Demo data is strictly for local development and testing; never deployed to production.
+- **Production data**: Real user data without prefixes. No prefixes used for live, user-entered data.
+
+**Agent must ask user approval before creating ANY data** (sample, demo, or production fixtures). User specifies: is this sample data for docs? Demo for testing? A fixture for a test scenario? Agent confirms naming prefix and purpose before generation.
+
+**Rationale**: Clear naming prevents accidental production deployments of test data; naming convention facilitates automated cleanup of test data; explicit approval ensures data creation aligns with specification intent.
 
 ### Testing Strategy (User Approval Required)
 
@@ -108,14 +129,17 @@ Tests suggested by agent must receive explicit user approval before implementati
 
 **Unit Tests** (pure logic, 85%+ target coverage)
 - Event serialization/deserialization
-- Validation rules
+- Validation rules (including DataAnnotationsAttributes behavior)
+- Pure function calculations
 
 **Integration Tests** (end-to-end slice verification)
 - OAuth token validation → data isolation enforced
 - Database migrations run successfully
+- Entity Framework DbContext configuration validated
+- Validation attributes enforced on API endpoints
 
 **Contract Tests** (event schema stability)
-- event schema versioning
+- Event schema versioning
 - Backwards compatibility of event handlers
 - Projection schema changes
 
@@ -123,16 +147,23 @@ Tests suggested by agent must receive explicit user approval before implementati
 - OAuth token required for all user endpoints
 - User can only access their own data
 - Anonymous access to public data (if applicable)
+- Data validation prevents injection attacks
 
 **Database Tests**
 - Migration up/down transitions
 - Event table constraints (unique EventId, non-null fields)
 - Foreign key integrity for aggregates
+- DataAnnotations constraints validated at database layer
 
-**E2E Tests** (critical user journeys)
+**E2E Tests** (critical user journeys using Playwright MCP)
+- Complete user workflows from frontend form submission to event storage to projection materialization
+- Form validation feedback displayed correctly
+- Data persisted and visible in read projections
+- Responsive design verified across breakpoints
 
 **Performance Tests** (under acceptance criteria)
 - Projection lag <5 seconds after event insertion
+- API endpoints meet <500ms p95 response time SLO under load
 
 ### Development Approval Gates
 
@@ -141,10 +172,10 @@ Tests suggested by agent must receive explicit user approval before implementati
 3. **Tests Fail (Red)**: Proposed tests run and fail without implementation
 4. **Implementation (Green)**: Code written to make tests pass
 5. **Refactor (Refactor)**: Code cleaned, tests still pass
-6. **Code Review**: Implementation reviewed for architecture compliance, naming, performance
-7. **Local Deployment**: Slice deployed locally via Aspire, tested manually
+6. **Code Review**: Implementation reviewed for architecture compliance, naming, performance, validation discipline
+7. **Local Deployment**: Slice deployed locally via Aspire, tested manually with Playwright if E2E slice
 8. **Azure Deployment**: Slice deployed to Azure Container Apps via GitHub Actions + azd
-9. **User Acceptance**: User validates slice meets specification
+9. **User Acceptance**: User validates slice meets specification and data validation rules observed
 
 ## Approved MCP Tools
 
@@ -169,13 +200,16 @@ Tests suggested by agent must receive explicit user approval before implementati
 - **mcp_nuget_get-package-readme** – Retrieve package documentation and usage examples
 - **mcp_nuget_update-package-to-version** – Update packages to specific versions with dependency resolution
 
+### Testing & Quality Assurance
+- **Playwright MCP** – End-to-end browser automation for critical user journeys; write and run Playwright test code for UI validation, form submission, and responsive design verification
+
 ### Source Control & Examples
 - **github_repo** – Search GitHub repositories for code examples and patterns (e.g., Event Sourcing with .NET, Blazor authentication)
 
 ## Governance
 
 ### Constitution as Governing Document
-This constitution supersedes all other project guidance. All architectural decisions, code reviews, deployment approvals, and spec acceptance gates must verify compliance with these six core principles and technology stack requirements.
+This constitution supersedes all other project guidance. All architectural decisions, code reviews, deployment approvals, and spec acceptance gates must verify compliance with these seven core principles and technology stack requirements.
 
 ### Amendment Procedure
 Amendments must:
@@ -187,19 +221,19 @@ Amendments must:
 
 Version bumping:
 - **MAJOR**: Principle removal or redefinition (e.g., removing Event Sourcing, changing auth model)
-- **MINOR**: New principle, new technology stack component, or major section expansion (e.g., adding performance SLOs)
+- **MINOR**: New principle, new technology stack component, or major section expansion (e.g., adding data validation requirements, new MCP tool category)
 - **PATCH**: Clarifications, wording refinements, typo fixes, example updates (no semantic change to governance)
 
 ### Compliance Review
-- Weekly: Code reviews verify architecture compliance (Clean Architecture layers, pure/impure separation, event semantics)
-- Per-spec: Testing strategy approved before implementation; vertical slice completeness validated
-- Monthly: Technology stack checked for security patches and major updates; NuGet packages reviewed
+- Weekly: Code reviews verify architecture compliance (Clean Architecture layers, pure/impure separation, event semantics, validation discipline)
+- Per-spec: Testing strategy approved before implementation; vertical slice completeness validated; data naming conventions observed
+- Monthly: Technology stack checked for security patches and major updates; NuGet packages reviewed; data validation audit (sample/demo data cleaned up before production deployments)
 
 ### Template Alignment
 All SpecKit templates must reflect this constitution:
-- **.specify/templates/plan-template.md**: Incorporate constitution principles into success criteria
-- **.specify/templates/spec-template.md**: Mandate event sourcing schemas, testing categories, acceptance criteria
-- **.specify/templates/tasks-template.md**: Align task types with principles (e.g., "Event Handler", "Projection", "Integration Test", "Security Audit")
+- **.specify/templates/plan-template.md**: Incorporate constitution principles into success criteria; include data naming conventions
+- **.specify/templates/spec-template.md**: Mandate event sourcing schemas, testing categories, acceptance criteria, validation requirements
+- **.specify/templates/tasks-template.md**: Align task types with principles (e.g., "Event Handler", "Projection", "Integration Test", "Security Audit", "Playwright E2E Test")
 - **.specify/templates/commands/*.md**: Reference this constitution for guidance; agent-specific names (e.g., "Copilot") replaced with generic guidance
 
 ### Runtime Guidance
@@ -207,15 +241,4 @@ Development workflow guidance documented in [README.md](../../README.md) and .gi
 
 ---
 
-**Version**: 1.0.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2025-12-11
-
-<!-- Sync Impact Report -->
-<!-- 
-Initial Ratification: v1.0.0
-- 6 core principles established: Clean Architecture, Functional Programming, Event Sourcing, Quality-First, UX Consistency, Performance & Observability
-- Technology stack frozen: .NET 10, Aspire, Blazor, Azure SQL, Azure Container Apps, Managed Identity, Key Vault
-- Development workflow defined: Vertical slices, testing approval gates, Red-Green-Refactor discipline
-- 14 MCP tools approved for use
-- Templates requiring updates: plan-template.md, spec-template.md, tasks-template.md, commands/*.md
-- Follow-up: Review template files and update references to constitution principles
--->
+**Version**: 1.2.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2025-12-15
