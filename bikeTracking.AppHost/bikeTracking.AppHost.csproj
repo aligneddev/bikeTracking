@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\bikeTracking.ApiService\bikeTracking.ApiService.csproj" />
-    <ProjectReference Include="..\bikeTracking.Web\bikeTracking.Web.csproj" />
+    <ProjectReference Include="..\bikeTracking.WebWasm\bikeTracking.WebWasm.csproj" />
   </ItemGroup>
 
   <ItemGroup>
