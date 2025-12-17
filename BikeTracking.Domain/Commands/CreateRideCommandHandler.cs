@@ -2,6 +2,7 @@
 
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;
+using BikeTracking.Domain.Results;
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;
 
@@ -22,6 +23,7 @@ public class CreateRideCommandHandler
     /// <summary>
     /// Handles ride creation command and generates domain events.
     /// Returns the RideCreated event plus any weather-related events.
+    /// Uses functional Result pattern for error handling.
     /// </summary>
     /// <param name="rideId">New ride GUID</param>
     /// <param name="userId">User identity from OAuth token</param>
@@ -36,8 +38,8 @@ public class CreateRideCommandHandler
     /// <param name="latitude">Location latitude for weather lookup (optional)</param>
     /// <param name="longitude">Location longitude for weather lookup (optional)</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>RideCreated event and any additional events (weather events)</returns>
-    public async Task<(RideCreated rideCreated, DomainEvent[] additionalEvents)> HandleAsync(
+    /// <returns>Result containing RideCreated event and any additional events (weather events)</returns>
+    public async Task<Result<(RideCreated rideCreated, DomainEvent[] additionalEvents)>> HandleAsync(
         Guid rideId,
         string userId,
         DateOnly date,
@@ -69,9 +71,10 @@ public class CreateRideCommandHandler
         };
 
         // Validate against domain constraints
-        if (!ride.IsValid(out var validationError))
+        var validationResult = ride.Validate();
+        if (validationResult is Result<Unit>.Failure failure)
         {
-            throw new InvalidOperationException($"Ride validation failed: {validationError}");
+            return new Result<(RideCreated, DomainEvent[])>.Failure(failure.Error);
         }
 
         // Step 2: Fetch weather data with graceful degradation (FR-008)
@@ -162,7 +165,8 @@ public class CreateRideCommandHandler
             WeatherData = weatherData // May be null (graceful degradation)
         };
 
-        return (rideCreatedEvent, additionalEvents.ToArray());
+        return new Result<(RideCreated, DomainEvent[])>.Success(
+            (rideCreatedEvent, additionalEvents.ToArray()));
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿namespace BikeTracking.Domain.Entities;
 
+using BikeTracking.Domain.Results;
 using BikeTracking.Domain.ValueObjects;
 
 /// <summary>
@@ -45,87 +46,63 @@ public class Ride
     public int AgeInDays => (int)(DateTime.UtcNow.Date - CreatedTimestamp.Date).TotalDays;
 
     /// <summary>
-    /// Validates ride business rules.
+    /// Validates ride business rules using functional Result pattern.
     /// </summary>
-    public bool IsValid(out string error)
+    public Result<Unit> Validate()
     {
-        error = string.Empty;
-
         // Date constraint: within last 90 days (FR-007, FR-011)
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var minDate = today.AddDays(-90);
 
         if (Date > today)
-        {
-            error = "Date cannot be in the future.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Date cannot be in the future."));
 
         if (Date < minDate)
-        {
-            error = "Ride date must be within the last 90 days.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Ride date must be within the last 90 days."));
 
         // Hour validation: 0-23 (FR-007)
         if (Hour < 0 || Hour > 23)
-        {
-            error = "Hour must be between 0 and 23.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Hour must be between 0 and 23."));
 
         // Distance validation
         if (Distance <= 0)
-        {
-            error = "Distance must be greater than zero.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Distance must be greater than zero."));
 
         // Unit validation
         if (DistanceUnit is not ("miles" or "kilometers"))
-        {
-            error = "Distance unit must be 'miles' or 'kilometers'.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Distance unit must be 'miles' or 'kilometers'."));
 
         // Required fields
         if (string.IsNullOrWhiteSpace(RideName))
-        {
-            error = "Ride name is required.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Ride name is required."));
 
         if (string.IsNullOrWhiteSpace(StartLocation))
-        {
-            error = "Start location is required.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Start location is required."));
 
         if (string.IsNullOrWhiteSpace(EndLocation))
-        {
-            error = "End location is required.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("End location is required."));
 
         // Character limits: 200 chars max (FR-001)
         if (RideName.Length > 200)
-        {
-            error = "Ride name cannot exceed 200 characters.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Ride name cannot exceed 200 characters."));
 
         if (StartLocation.Length > 200)
-        {
-            error = "Start location cannot exceed 200 characters.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("Start location cannot exceed 200 characters."));
 
         if (EndLocation.Length > 200)
-        {
-            error = "End location cannot exceed 200 characters.";
-            return false;
-        }
+            return new Result<Unit>.Failure(
+                Error.ValidationFailed("End location cannot exceed 200 characters."));
 
-        return true;
+        return new Result<Unit>.Success(Unit.Value);
     }
 }

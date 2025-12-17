@@ -33,10 +33,10 @@ Use SpecKit to create specifications and run the development. It is essential to
 This is the constitution prompt I used:
 
 ```markdown
-Create with principles focused on code quality, testing standards, user experience consistency, and performance requirements following Clean Architecture, Functional Programming (pure and impure function sandwich), Event Sourcing and Domain Driven Development ideas to create high scalable, quality and usable web application and https API and an SQL Database. 
+Create with principles focused on code quality, testing standards, user experience consistency, and performance requirements following Clean Architecture, Functional Programming (pure and impure function sandwich, use Results instead of Exceptions, avoid using Exceptions), Event Sourcing and Domain Driven Development ideas to create high scalable, quality and usable web application and https API and an SQL Database. 
 Suggest tests, but ask for my input before creating tests.
 
-Focus on creating a working vertical slice of functionality for each specification. We value working software after running /speckit.implementation task. Only create end-to-end user flow UI tests using Playwright code and MCP when a end-to-end user flow is complete.
+Focus on creating a working vertical slice of functionality for each specification. We value working software after running /speckit.implementation task. Create end-to-end user flow UI tests using Playwright code and MCP when a end-to-end user flow is complete.
 
 Use the MCP tools for MS Learn (for information), GitHub (source control and actions), Azure MCP for gathering information. Use the Playwright MCP. Suggest other  MCP tools to use and record those in this constitution. Prompt me for permission to use these. If you are unsure, use a web search and MS Learn to make sure your information is up to date.
 

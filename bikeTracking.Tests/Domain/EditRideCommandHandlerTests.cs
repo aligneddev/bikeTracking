@@ -1,6 +1,7 @@
 ﻿using BikeTracking.Domain.Commands;
 using BikeTracking.Domain.Entities;
 using BikeTracking.Domain.Events;
+using BikeTracking.Domain.Results;
 using BikeTracking.Domain.Services;
 using BikeTracking.Domain.ValueObjects;
 
@@ -56,21 +57,26 @@ public class EditRideCommandHandlerTests
         var newRideName = "DEMO_Updated Ride Name";
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             null, null, null, null, newRideName, null, null, null, null, null);
 
         // Assert
-        using (Assert.EnterMultipleScope())
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited, Is.Not.Null);
-            Assert.That(rideEdited.AggregateId, Is.EqualTo(currentRide.RideId));
-            Assert.That(rideEdited.UserId, Is.EqualTo(currentRide.UserId));
-            Assert.That(rideEdited.NewRideName, Is.EqualTo(newRideName));
-            Assert.That(rideEdited.NewDate, Is.Null);
-            Assert.That(rideEdited.NewHour, Is.Null);
-            Assert.That(rideEdited.NewWeatherData, Is.Null);
-            Assert.That(additionalEvents, Is.Empty);
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited, Is.Not.Null);
+                Assert.That(rideEdited.AggregateId, Is.EqualTo(currentRide.RideId));
+                Assert.That(rideEdited.UserId, Is.EqualTo(currentRide.UserId));
+                Assert.That(rideEdited.NewRideName, Is.EqualTo(newRideName));
+                Assert.That(rideEdited.NewDate, Is.Null);
+                Assert.That(rideEdited.NewHour, Is.Null);
+                Assert.That(rideEdited.NewWeatherData, Is.Null);
+                Assert.That(additionalEvents, Is.Empty);
+            }
         }
 
         // Verify weather service was never called (date/hour unchanged)
@@ -86,20 +92,25 @@ public class EditRideCommandHandlerTests
         var currentRide = CreateTestRideProjection();
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             null, null, 15.5m, "kilometers", "DEMO_New Name",
             "DEMO_New Start", "DEMO_New End", "DEMO_New notes", null, null);
 
         // Assert
-        using (Assert.EnterMultipleScope())
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited.NewDistance, Is.EqualTo(15.5m));
-            Assert.That(rideEdited.NewRideName, Is.EqualTo("DEMO_New Name"));
-            Assert.That(rideEdited.NewStartLocation, Is.EqualTo("DEMO_New Start"));
-            Assert.That(rideEdited.NewEndLocation, Is.EqualTo("DEMO_New End"));
-            Assert.That(rideEdited.NewNotes, Is.EqualTo("DEMO_New notes"));
-            Assert.That(additionalEvents, Is.Empty);
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited.NewDistance, Is.EqualTo(15.5m));
+                Assert.That(rideEdited.NewRideName, Is.EqualTo("DEMO_New Name"));
+                Assert.That(rideEdited.NewStartLocation, Is.EqualTo("DEMO_New Start"));
+                Assert.That(rideEdited.NewEndLocation, Is.EqualTo("DEMO_New End"));
+                Assert.That(rideEdited.NewNotes, Is.EqualTo("DEMO_New notes"));
+                Assert.That(additionalEvents, Is.Empty);
+            }
         }
 
         _ = await _mockWeatherService.DidNotReceive()
@@ -133,20 +144,25 @@ public class EditRideCommandHandlerTests
             .Returns(expectedWeather);
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             newDate, null, null, null, null, null, null, null, latitude, longitude);
 
         // Assert
-        using (Assert.EnterMultipleScope())
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited.NewDate, Is.EqualTo(newDate));
-            Assert.That(rideEdited.NewWeatherData, Is.EqualTo(expectedWeather));
-            Assert.That(additionalEvents, Has.Length.EqualTo(1));
-            Assert.That(additionalEvents[0], Is.TypeOf<WeatherFetched>());
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited.NewDate, Is.EqualTo(newDate));
+                Assert.That(rideEdited.NewWeatherData, Is.EqualTo(expectedWeather));
+                Assert.That(additionalEvents, Has.Length.EqualTo(1));
+                Assert.That(additionalEvents[0], Is.TypeOf<WeatherFetched>());
 
-            var weatherEvent = (WeatherFetched)additionalEvents[0];
-            Assert.That(weatherEvent.WeatherData, Is.EqualTo(expectedWeather));
+                var weatherEvent = (WeatherFetched)additionalEvents[0];
+                Assert.That(weatherEvent.WeatherData, Is.EqualTo(expectedWeather));
+            }
         }
 
         _ = await _mockWeatherService.Received(1)
@@ -175,16 +191,21 @@ public class EditRideCommandHandlerTests
             .Returns(expectedWeather);
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             null, newHour, null, null, null, null, null, null, latitude, longitude);
 
         // Assert
-        using (Assert.EnterMultipleScope())
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited.NewHour, Is.EqualTo(newHour));
-            Assert.That(rideEdited.NewWeatherData, Is.EqualTo(expectedWeather));
-            Assert.That(additionalEvents, Has.Length.EqualTo(1));
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited.NewHour, Is.EqualTo(newHour));
+                Assert.That(rideEdited.NewWeatherData, Is.EqualTo(expectedWeather));
+                Assert.That(additionalEvents, Has.Length.EqualTo(1));
+            }
         }
 
         _ = await _mockWeatherService.Received(1)
@@ -213,16 +234,21 @@ public class EditRideCommandHandlerTests
             .Returns(expectedWeather);
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             newDate, newHour, null, null, null, null, null, null, latitude, longitude);
 
         // Assert
-        using (Assert.EnterMultipleScope())
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited.NewDate, Is.EqualTo(newDate));
-            Assert.That(rideEdited.NewHour, Is.EqualTo(newHour));
-            Assert.That(rideEdited.NewWeatherData, Is.EqualTo(expectedWeather));
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited.NewDate, Is.EqualTo(newDate));
+                Assert.That(rideEdited.NewHour, Is.EqualTo(newHour));
+                Assert.That(rideEdited.NewWeatherData, Is.EqualTo(expectedWeather));
+            }
         }
 
         _ = await _mockWeatherService.Received(1)
@@ -237,16 +263,21 @@ public class EditRideCommandHandlerTests
         var newDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-2));
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             newDate, null, null, null, null, null, null, null, null, null);
 
         // Assert
-        using (Assert.EnterMultipleScope())
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited.NewDate, Is.EqualTo(newDate));
-            Assert.That(rideEdited.NewWeatherData, Is.Null);
-            Assert.That(additionalEvents, Is.Empty);
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited.NewDate, Is.EqualTo(newDate));
+                Assert.That(rideEdited.NewWeatherData, Is.Null);
+                Assert.That(additionalEvents, Is.Empty);
+            }
         }
 
         _ = await _mockWeatherService.DidNotReceive()
@@ -272,20 +303,25 @@ public class EditRideCommandHandlerTests
             .Returns<Weather?>(_ => throw new TimeoutException("Weather API timeout"));
 
         // Act - Should not throw, graceful degradation
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             newDate, null, null, null, null, null, null, null, latitude, longitude);
 
-        // Assert
-        using (Assert.EnterMultipleScope())
+        // Assert - Result should be Success with WeatherFetchFailed event
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited, Is.Not.Null);
-            Assert.That(rideEdited.NewWeatherData, Is.Null);
-            Assert.That(additionalEvents, Has.Length.EqualTo(1));
-            Assert.That(additionalEvents[0], Is.TypeOf<WeatherFetchFailed>());
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited, Is.Not.Null);
+                Assert.That(rideEdited.NewWeatherData, Is.Null);
+                Assert.That(additionalEvents, Has.Length.EqualTo(1));
+                Assert.That(additionalEvents[0], Is.TypeOf<WeatherFetchFailed>());
 
-            var failedEvent = (WeatherFetchFailed)additionalEvents[0];
-            Assert.That(failedEvent.ErrorMessage, Does.Contain("Weather API timeout"));
+                var failedEvent = (WeatherFetchFailed)additionalEvents[0];
+                Assert.That(failedEvent.ErrorMessage, Does.Contain("Weather API timeout"));
+            }
         }
     }
 
@@ -305,19 +341,24 @@ public class EditRideCommandHandlerTests
             .Returns(unavailableWeather);
 
         // Act
-        var (rideEdited, additionalEvents) = await _handler.HandleAsync(
+        var result = await _handler.HandleAsync(
             currentRide.RideId, currentRide.UserId, currentRide,
             null, newHour, null, null, null, null, null, null, latitude, longitude);
 
-        // Assert
-        using (Assert.EnterMultipleScope())
+        // Assert - Result should be Success with WeatherFetchFailed event
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Success>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Success success)
         {
-            Assert.That(rideEdited.NewHour, Is.EqualTo(newHour));
-            Assert.That(additionalEvents, Has.Length.EqualTo(1));
-            Assert.That(additionalEvents[0], Is.TypeOf<WeatherFetchFailed>());
+            var (rideEdited, additionalEvents) = success.Value;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(rideEdited.NewHour, Is.EqualTo(newHour));
+                Assert.That(additionalEvents, Has.Length.EqualTo(1));
+                Assert.That(additionalEvents[0], Is.TypeOf<WeatherFetchFailed>());
 
-            var failedEvent = (WeatherFetchFailed)additionalEvents[0];
-            Assert.That(failedEvent.ErrorMessage, Does.Contain("unavailable"));
+                var failedEvent = (WeatherFetchFailed)additionalEvents[0];
+                Assert.That(failedEvent.ErrorMessage, Does.Contain("unavailable"));
+            }
         }
     }
 
@@ -326,36 +367,51 @@ public class EditRideCommandHandlerTests
     #region Validation Tests
 
     [Test]
-    public void WhenEditedRideBecomesInvalidThenThrowsInvalidOperationException()
+    public async Task WhenEditedRideBecomesInvalidThenReturnsValidationFailure()
     {
         // Arrange - Changing date to future violates validation
         var currentRide = CreateTestRideProjection();
         var futureDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _handler.HandleAsync(
-                currentRide.RideId, currentRide.UserId, currentRide,
-                futureDate, null, null, null, null, null, null, null, null, null));
+        // Act
+        var result = await _handler.HandleAsync(
+            currentRide.RideId, currentRide.UserId, currentRide,
+            futureDate, null, null, null, null, null, null, null, null, null);
 
-        Assert.That(ex?.Message, Does.Contain("Ride validation failed"));
-        Assert.That(ex?.Message, Does.Contain("Date cannot be in the future"));
+        // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Failure>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Failure failure)
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(failure.Error.Code, Is.EqualTo("VALIDATION_FAILED"));
+                Assert.That(failure.Error.Message, Does.Contain("Date cannot be in the future"));
+            }
+        }
     }
 
     [Test]
-    public void WhenCurrentRideIsNullThenThrowsArgumentNullException()
+    public async Task WhenCurrentRideIsNullThenReturnsValidationFailure()
     {
         // Arrange
         var rideId = Guid.NewGuid();
         var userId = "DEMO_User_TestUser";
 
-        // Act & Assert
-        var ex = Assert.ThrowsAsync<ArgumentNullException>(async () =>
-            await _handler.HandleAsync(
-                rideId, userId, null!,
-                null, null, null, null, "DEMO_New Name", null, null, null, null, null));
+        // Act
+        var result = await _handler.HandleAsync(
+            rideId, userId, null!,
+            null, null, null, null, "DEMO_New Name", null, null, null, null, null);
 
-        Assert.That(ex?.ParamName, Is.EqualTo("currentRide"));
+        // Assert
+        Assert.That(result, Is.InstanceOf<Result<(RideEdited, DomainEvent[])>.Failure>());
+        if (result is Result<(RideEdited, DomainEvent[])>.Failure failure)
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(failure.Error.Code, Is.EqualTo("NOT_FOUND"));
+                Assert.That(failure.Error.Message, Does.Contain("currentRide"));
+            }
+        }
     }
 
     #endregion
