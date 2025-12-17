@@ -51,6 +51,8 @@ Prefix any sample data with SAMPLE_. Prefix any dummy/demo data with DEMO_. Ask 
 The application will be hosted in Azure.  With Aspire, host the application in Azure Container Apps. Use Managed Identity. All secrets must be in the Azure Key Vault.
 
 DevOps: Pipelines will be for GitHub Actions using the Aspire and `azd` tooling to deploy. Create templates actions for easier reuse.
+
+Git: Always commit before continuing to a new phase.
 ```
 
 ### Business Rules/Features

@@ -239,6 +239,8 @@ All SpecKit templates must reflect this constitution:
 ### Runtime Guidance
 Development workflow guidance documented in [README.md](../../README.md) and .github/prompts/ directory. This constitution establishes governance; runtime prompts add context and tool references.
 
+Always commit before continuing to a new phase.
+
 ---
 
 **Version**: 1.2.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2025-12-15
