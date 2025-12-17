@@ -85,7 +85,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
 // ===== Middleware Pipeline =====
 app.UseExceptionHandler();
 app.UseCors();
@@ -98,7 +97,7 @@ if (app.Environment.IsDevelopment())
     _ = app.MapOpenApi();
 }
 
-//// ===== Razor Components Endpoints =====
+// ==== Razor Components Endpoints ====
 //app.MapRazorComponents<App>()
 //    .AddInteractiveServerRenderMode();
 
