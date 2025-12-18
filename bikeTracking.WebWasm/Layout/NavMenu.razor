@@ -1,27 +1,33 @@
 <div class="nav-menu">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Bike Tracking</a>
-            <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="/">
+                <span class="bi bi-bicycle"></span>
+                <span class="brand-text">Bike Tracking</span>
+            </a>
+            <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="@NavMenuCssClass navbar-collapse">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <div class="@NavMenuCssClass navbar-menu">
+                <ul class="navbar-nav">
                     <li class="nav-item">
                         <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-                            <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+                            <span class="nav-icon bi bi-house-door-fill"></span>
+                            <span class="nav-text">Home</span>
                         </NavLink>
                     </li>
                     <AuthorizeView>
                         <Authorized>
                             <li class="nav-item">
                                 <NavLink class="nav-link" href="rides">
-                                    <span class="bi bi-list-ul" aria-hidden="true"></span> My Rides
+                                    <span class="nav-icon bi bi-list-ul"></span>
+                                    <span class="nav-text">My Rides</span>
                                 </NavLink>
                             </li>
                             <li class="nav-item">
                                 <NavLink class="nav-link" href="rides/add">
-                                    <span class="bi bi-plus-circle-fill" aria-hidden="true"></span> Add Ride
+                                    <span class="nav-icon bi bi-plus-circle-fill"></span>
+                                    <span class="nav-text">Add Ride</span>
                                 </NavLink>
                             </li>
                         </Authorized>
