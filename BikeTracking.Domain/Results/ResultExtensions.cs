@@ -1,4 +1,4 @@
-namespace BikeTracking.Domain.Results;
+﻿namespace BikeTracking.Domain.Results;
 
 /// <summary>
 /// Extension methods for working with Results functionally.

@@ -1,4 +1,4 @@
-namespace BikeTracking.Domain.Results;
+﻿namespace BikeTracking.Domain.Results;
 
 /// <summary>
 /// Represents the outcome of an operation as a discriminated union.

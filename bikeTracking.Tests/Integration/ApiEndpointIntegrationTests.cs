@@ -15,11 +15,11 @@ public class ApiEndpointIntegrationTests
 {
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
 
-    private async Task<HttpClient> CreateApiClientAsync(CancellationToken cancellationToken = default)
+    private static async Task<HttpClient> CreateApiClientAsync(CancellationToken cancellationToken = default)
     {
         var appHost = await DistributedApplicationTestingBuilder
             .CreateAsync<Projects.bikeTracking_AppHost>(cancellationToken);
-        
+
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
             clientBuilder.AddStandardResilienceHandler();
@@ -31,7 +31,7 @@ public class ApiEndpointIntegrationTests
         var httpClient = app.CreateHttpClient("apiservice");
         await app.ResourceNotifications.WaitForResourceHealthyAsync("apiservice", cancellationToken)
             .WaitAsync(DefaultTimeout, cancellationToken);
-        
+
         return httpClient;
     }
 
@@ -73,7 +73,7 @@ public class ApiEndpointIntegrationTests
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
-        
+
         var rideResponse = await response.Content.ReadFromJsonAsync<RideResponse>(cancellationToken: cancellationToken);
         Assert.That(rideResponse, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -121,7 +121,7 @@ public class ApiEndpointIntegrationTests
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        
+
         var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
         Assert.That(errorContent, Does.Contain("Date cannot be in the future"));
     }
