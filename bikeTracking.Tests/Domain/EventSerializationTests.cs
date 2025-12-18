@@ -56,7 +56,7 @@ public class EventSerializationTests
 
         // Act - Serialize to JSON
         var json = JsonSerializer.Serialize(originalEvent, _jsonOptions);
-        
+
         // Assert - JSON is not empty
         Assert.That(json, Is.Not.Empty);
 
@@ -81,7 +81,7 @@ public class EventSerializationTests
             Assert.That(deserializedEvent.StartLocation, Is.EqualTo(originalEvent.StartLocation));
             Assert.That(deserializedEvent.EndLocation, Is.EqualTo(originalEvent.EndLocation));
             Assert.That(deserializedEvent.Notes, Is.EqualTo(originalEvent.Notes));
-            
+
             // Weather data assertions
             Assert.That(deserializedEvent.WeatherData, Is.Not.Null);
             Assert.That(deserializedEvent.WeatherData!.Temperature, Is.EqualTo(originalEvent.WeatherData!.Temperature));

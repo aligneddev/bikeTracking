@@ -11,6 +11,7 @@
     <ProjectReference Include="..\BikeTracking.Infrastructure\BikeTracking.Infrastructure.csproj" />
     <ProjectReference Include="..\bikeTracking.ServiceDefaults\bikeTracking.ServiceDefaults.csproj" />
     <ProjectReference Include="..\BikeTracking.Domain\BikeTracking.Domain.csproj" />
+    <ProjectReference Include="..\BikeTracking.Domain.FSharp\BikeTracking.Domain.FSharp.fsproj" />
     <ProjectReference Include="..\BikeTracking.Shared\BikeTracking.Shared.csproj" />
   </ItemGroup>
 

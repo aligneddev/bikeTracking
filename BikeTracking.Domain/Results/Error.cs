@@ -1,4 +1,4 @@
-namespace BikeTracking.Domain.Results;
+﻿namespace BikeTracking.Domain.Results;
 
 /// <summary>
 /// Represents an error with a code, message, and severity level.

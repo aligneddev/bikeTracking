@@ -66,6 +66,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BikeTracking.Domain\BikeTracking.Domain.csproj" />
+    <ProjectReference Include="..\BikeTracking.Domain.FSharp\BikeTracking.Domain.FSharp.fsproj" />
   </ItemGroup>
 
 </Project>
