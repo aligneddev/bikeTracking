@@ -1,14 +1,15 @@
 # Bike Tracking Application Constitution
-<!-- Sync Impact Report v1.1.1 → v1.2.0
-Version Change: MINOR (1.2.0)
-Rationale: Added new Principle VII (Data Validation ;& Integrity) establishing DataAnnotationsAttributes validation discipline across frontend and backend. Added data naming conventions (SAMPLE_/DEMO_ prefixes) and approved Playwright MCP for E2E testing. Materially expands governance for data quality without changing existing principles.
+<!-- Sync Impact Report v1.2.0 → v1.3.0
+Version Change: MINOR (1.3.0)
+Rationale: Documented adoption of F# for domain layer (events, entities, value objects, services, command handlers) via BikeTracking.Domain.FSharp project. C# remains for API layer, infrastructure, and frontend. Clarified hybrid C#/F# architecture with FSharpValueConverters for EF Core integration. Materially expands technology stack component guidance without changing existing principles.
 Modified Sections:
-- Added Principle VII: Data Validation & Integrity (client-side, server-side, database constraints)
-- Development Workflow: Added "Data Naming Conventions" subsection with SAMPLE_/DEMO_ prefix rules
-- Approved MCP Tools: Added new "Testing & Quality Assurance" category with Playwright MCP
-- Governance: Updated Compliance Review to include data validation audits
-Status: All changes approved by user; no deferred items
+- Principle II (Functional Programming): Expanded to explicitly reference F# discriminated unions and active patterns for pure function implementation
+- Technology Stack Requirements: Added "Language: F# (latest stable)" for domain layer; clarified C# for API and infrastructure; noted EF Core interop via value converters
+- Development Workflow: Added F# testing strategy (unit tests for discriminated unions, active patterns, ROP composition)
+- Approved MCP Tools: No new tools required; existing stack supports F# development
+Status: All changes approved by user; F# migration complete per FSHARP_MIGRATION_COMPLETE.md
 Previous Updates:
+- v1.2.0 (2025-12-15): Added Principle VII (Data Validation & Integrity), data naming conventions, Playwright MCP
 - v1.1.1 (2025-12-15): Added Entity Framework Core specification, EF Core testing strategy
 - v1.1.0 (2025-12-11): Added Test Plan Phase, NuGet Package Discipline, and 3 MCP tools (monitor, resourcehealth, role)
 - v1.0.0 (2025-12-11): Initial ratification with 6 core principles and 14 MCP tools
@@ -24,9 +25,9 @@ Domain logic isolated from infrastructure concerns via layered architecture alig
 
 ### II. Functional Programming (Pure & Impure Sandwich)
 
-Core calculations and business logic implemented as pure functions: distance-to-distance conversions, expense-to-savings transformations, weather-to-recommendation mappings. Pure functions have no side effects—given the same input, always return the same output. Impure edges (database reads/writes, external API calls, user input, system time) explicitly isolated at application boundaries. Handlers orchestrate pure logic within impure I/O boundaries.
+Core calculations and business logic implemented as pure functions: distance-to-distance conversions, expense-to-savings transformations, weather-to-recommendation mappings. Pure functions have no side effects—given the same input, always return the same output. Impure edges (database reads/writes, external API calls, user input, system time) explicitly isolated at application boundaries. Handlers orchestrate pure logic within impure I/O boundaries. **F# discriminated unions and active patterns preferred for domain modeling** (domain layer uses F#); Railway Oriented Programming (Result<'T> type) for error handling; C# records used in API surface for interop.
 
-**Rationale**: Pure functions are trivially testable, deterministic, and composable. Side effect isolation makes dataflow explicit and reduces debugging complexity. Immutable data structures preferred where practical.
+**Rationale**: Pure functions are trivially testable, deterministic, and composable. Side effect isolation makes dataflow explicit and reduces debugging complexity. Immutable data structures preferred where practical. F# enforces immutability and pattern matching, reducing entire categories of bugs. Discriminated unions make invalid states unrepresentable.
 
 ### III. Event Sourcing & CQRS
 
@@ -63,8 +64,10 @@ All user input **MUST** be validated in three layers: (1) **Client-side (Blazor)
 ### Backend & Orchestration
 - **Framework**: .NET 10 Minimal API (latest stable)
 - **Orchestration**: Microsoft Aspire (latest stable) for local and cloud development
-- **Language**: C# (latest language features: records, pattern matching, async/await, follow .editorconfig for code formatting)
+- **Language (API Layer)**: C# (latest language features: records, pattern matching, async/await, follow .editorconfig for code formatting)
+- **Language (Domain Layer)**: F# (latest stable) for domain entities, events, value objects, services, and command handlers. Discriminated unions, active patterns, and Railway Oriented Programming pattern used for domain modeling and error handling.
 - **NuGet Discipline**: All packages must be checked monthly for updates; security patches applied immediately; major versions reviewed for breaking changes before upgrade
+- **Domain-Infrastructure Interop**: EF Core value converters (FSharpValueConverters) enable transparent mapping of F# discriminated unions to database columns
 
 ### Frontend
 - **Framework**: Microsoft Blazor .NET 10 (latest stable)
@@ -75,7 +78,7 @@ All user input **MUST** be validated in three layers: (1) **Client-side (Blazor)
 
 ### Data & Persistence
 - **Primary Database**: Azure SQL Database (serverless elastic pools in production)
-- **ORM & Data Access**: Entity Framework Core (latest .NET 10 compatible version) for all database interactions; DbContext per aggregate root; repositories abstract EF Core from domain layer
+- **ORM & Data Access**: Entity Framework Core (latest .NET 10 compatible version) for all database interactions; DbContext per aggregate root; repositories abstract EF Core from domain layer. EF Core value converters integrated for F# type marshaling.
 - **Schema Management**: EF Core migrations for code-first schema evolution
 - **Event Store**: Dedicated event table (Events with columns: EventId, AggregateId, EventType, Data JSON, Timestamp, Version); events stored as JSON via EF Core value converters
 - **Read Projections**: Separate read-only tables (e.g., RideProjection, SavingsProjection) built by background functions; queried via dedicated read-only DbContext
@@ -128,15 +131,19 @@ All data created during development **MUST** follow strict naming conventions to
 Tests suggested by agent must receive explicit user approval before implementation. Test categories by slice:
 
 **Unit Tests** (pure logic, 85%+ target coverage)
-- Event serialization/deserialization
+- F# discriminated unions and active pattern behavior
+- Railway Oriented Programming composition (Result<'T> chaining)
+- Event serialization/deserialization (F# to JSON and back)
 - Validation rules (including DataAnnotationsAttributes behavior)
-- Pure function calculations
+- Pure function calculations (F# functions and C# helpers)
 
 **Integration Tests** (end-to-end slice verification)
 - OAuth token validation → data isolation enforced
 - Database migrations run successfully
-- Entity Framework DbContext configuration validated
+- Entity Framework DbContext configuration validated, including FSharpValueConverters
+- F# domain types successfully marshaled through EF Core value converters
 - Validation attributes enforced on API endpoints
+- F# command handlers compose with C# infrastructure (repositories, services)
 
 **Contract Tests** (event schema stability)
 - Event schema versioning
@@ -243,4 +250,4 @@ Always commit before continuing to a new phase.
 
 ---
 
-**Version**: 1.2.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2025-12-15
+**Version**: 1.3.0 | **Ratified**: 2025-12-11 | **Last Amended**: 2025-12-19
