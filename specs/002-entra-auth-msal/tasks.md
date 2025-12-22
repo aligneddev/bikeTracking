@@ -2,13 +2,15 @@
 
 **Feature**: `002-entra-auth-msal` | **Spec**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md)
 
-**Feature Description**: Implement real Entra ID authentication using MSAL in both Vue.js frontend and .NET 10 API backend. Replace test authentication handler with production-ready OAuth 2.0/OpenID Connect flow.
+**Feature Description**: Implement real Entra ID authentication using MSAL in both Blazor WebAssembly frontend and .NET 10 API backend. Replace test authentication handler with production-ready OAuth 2.0/OpenID Connect flow.
 
 **Entra ID Configuration**:
 - ClientID: `a9c55801-9ab4-45f9-a777-9320685f21ea`
 - Object ID: `633fc7f8-8bea-4214-bdc6-76e4404b9cde`
 - Directory ID: `612b54fd-5aad-4fcc-add3-0b203ac0d9e0`
-- Redirect URL: `https://localhost:7265/authentication`
+- Callback URLs:
+  - Login callback: `https://localhost:7265/authentication/login-callback`
+  - Logout callback: `https://localhost:7265/authentication/logout-callback`
 
 ---
 
@@ -39,33 +41,33 @@
 
 #### US1 - Unit Tests
 
-- [ ] T009 [US1] Create unit test for AuthenticationService.login() in bikeTracking.WebWasm/tests/unit/AuthenticationService.test.ts
-- [ ] T010 [US1] Create unit test for AuthenticationService.logout() in bikeTracking.WebWasm/tests/unit/AuthenticationService.test.ts
-- [ ] T011 [US1] Create unit test for AuthenticationService.getAccessToken() in bikeTracking.WebWasm/tests/unit/AuthenticationService.test.ts
-- [ ] T012 [US1] Create unit test for useAuth() composable authentication state in bikeTracking.WebWasm/tests/unit/useAuth.test.ts
-- [ ] T013 [US1] Create unit test for route guard isAuthenticated check in bikeTracking.WebWasm/tests/unit/authGuard.test.ts
+- [ ] T009 [US1] Create unit test for AuthenticationService.LoginAsync() in bikeTracking.Tests/Authentication/AuthenticationServiceTests.cs
+- [ ] T010 [US1] Create unit test for AuthenticationService.LogoutAsync() in bikeTracking.Tests/Authentication/AuthenticationServiceTests.cs
+- [ ] T011 [US1] Create unit test for AuthenticationService.GetAccessTokenAsync() in bikeTracking.Tests/Authentication/AuthenticationServiceTests.cs
+- [ ] T012 [US1] Create unit test for LoginButton.razor component rendering and click behavior in bikeTracking.Tests/Components/LoginButtonTests.cs
+- [ ] T013 [US1] Create unit test for AuthorizeView.razor component logic in bikeTracking.Tests/Components/AuthorizeViewTests.cs
 
 #### US1 - Frontend Implementation
 
-- [ ] T014 [P] [US1] Create AuthenticationService wrapper class in bikeTracking.WebWasm/src/services/AuthenticationService.ts that wraps MSAL.js for login/logout/token acquisition
-- [ ] T015 [US1] Create Pinia authentication store in bikeTracking.WebWasm/src/stores/authStore.ts to track user identity, authentication status, and access token
-- [ ] T016 [US1] Create useAuth() Vue composable in bikeTracking.WebWasm/src/services/useAuth.ts to provide reactive authentication state in components
-- [ ] T017 [P] [US1] Create LoginButton component in bikeTracking.WebWasm/src/components/LoginButton.vue that triggers MSAL authentication flow
-- [ ] T018 [P] [US1] Create LogoutButton component in bikeTracking.WebWasm/src/components/LogoutButton.vue that calls MSAL logout and clears local state
-- [ ] T019 [US1] Create ProtectedPageGuard component in bikeTracking.WebWasm/src/components/ProtectedPageGuard.vue that hides protected pages from unauthenticated users
-- [ ] T020 [US1] Create LoginRedirect page in bikeTracking.WebWasm/src/pages/LoginRedirect.vue to handle OAuth callback redirect (https://localhost:7265/authentication)
-- [ ] T021 [US1] Update App.vue root component to initialize MSAL on app startup and check authentication state
-- [ ] T022 [US1] Update main.ts in bikeTracking.WebWasm/src/ to configure MSAL.js with Entra ID ClientID, Authority, and scopes
-- [ ] T023 [US1] Update router/index.ts in bikeTracking.WebWasm to add auth guards to protected routes (RidesPage, ProfilePage) and mark main page as public
-- [ ] T024 [US1] Update RidesPage.vue to show only when user is authenticated; hide page from unauthenticated users via route guard
-- [ ] T025 [US1] Update ProfilePage.vue to show only when user is authenticated and display authenticated user's Entra ID profile information
-- [ ] T026 [US1] Update MainPage.vue to remain accessible to all users (authenticated and unauthenticated)
+- [ ] T014 [P] [US1] Create AuthenticationService.cs in bikeTracking.WebWasm/Services/ as wrapper around MSAL.js for login/logout/token acquisition via JavaScript interop
+- [ ] T015 [US1] Create AuthenticationStateService.cs in bikeTracking.WebWasm/Services/ to provide Blazor AuthenticationStateProvider for app-wide authentication state
+- [ ] T016 [US1] Create ApiClient.cs in bikeTracking.WebWasm/Services/ with Bearer token injection middleware for all HTTP requests
+- [ ] T017 [P] [US1] Create LoginButton.razor component in bikeTracking.WebWasm/Components/ that triggers MSAL authentication flow
+- [ ] T018 [P] [US1] Create LogoutButton.razor component in bikeTracking.WebWasm/Components/ that calls MSAL logout and clears authentication state
+- [ ] T019 [US1] Create AuthorizeView.razor component in bikeTracking.WebWasm/Components/ to conditionally show/hide protected pages based on authentication status
+- [ ] T020 [US1] Create LoginCallback.razor page in bikeTracking.WebWasm/Pages/Authentication/ to handle OAuth callback redirect (https://localhost:7265/authentication/login-callback)
+- [ ] T021 [US1] Create LogoutCallback.razor page in bikeTracking.WebWasm/Pages/Authentication/ to handle post-logout redirect (https://localhost:7265/authentication/logout-callback)
+- [ ] T022 [US1] Update App.razor root component to initialize MSAL on app startup and establish authentication state provider
+- [ ] T023 [US1] Update Program.cs in bikeTracking.WebWasm to register MSAL.js configuration with Entra ID ClientID, Authority, and scopes
+- [ ] T024 [US1] Update MainPage.razor to remain accessible to all users (authenticated and unauthenticated)
+- [ ] T025 [US1] Update RidesPage.razor to use <AuthorizeView> wrapper; show only when user is authenticated
+- [ ] T026 [US1] Update ProfilePage.razor to use <AuthorizeView> wrapper and display authenticated user's Entra ID profile information (oid, email, given_name, family_name)
 
 #### US1 - Integration Tests
 
-- [ ] T027 [US1] Create end-to-end login flow test in bikeTracking.WebWasm/tests/integration/LoginFlow.test.ts: unauthenticated user → login redirect → authenticate → return to app
-- [ ] T028 [US1] Create end-to-end logout flow test in bikeTracking.WebWasm/tests/integration/LogoutFlow.test.ts: authenticated user → logout → session cleared → redirect to main page
-- [ ] T029 [US1] Create protected page access test in bikeTracking.WebWasm/tests/integration/ProtectedPageAccess.test.ts: verify unauthenticated users see only main page, authenticated users see protected pages
+- [ ] T027 [US1] Create end-to-end login flow test in bikeTracking.Tests/Integration/LoginFlowTests.cs: unauthenticated user navigates → redirected to Entra ID → authenticates → returns to login-callback → authenticated state established
+- [ ] T028 [US1] Create end-to-end logout flow test in bikeTracking.Tests/Integration/LogoutFlowTests.cs: authenticated user clicks logout → redirected to logout-callback → authentication state cleared → main page accessible
+- [ ] T029 [US1] Create protected page access test in bikeTracking.Tests/Integration/ProtectedPageAccessTests.cs: verify unauthenticated users cannot access RidesPage/ProfilePage, authenticated users can
 
 ---
 
@@ -86,6 +88,7 @@
 - [ ] T032 [US2] Create unit test for expired token rejection in bikeTracking.Tests/Authentication/TokenExpirationTests.cs
 - [ ] T033 [US2] Create unit test for malformed token rejection in bikeTracking.Tests/Authentication/MalformedTokenTests.cs
 - [ ] T034 [US2] Create unit test for missing Authorization header handling in bikeTracking.Tests/Authentication/MissingTokenTests.cs
+- [ ] T034b [US2] Create unit test for 403 Forbidden response when user authenticated but not authorized in bikeTracking.Tests/Authentication/UnauthorizedUserTests.cs
 
 #### US2 - API Middleware & Configuration
 
@@ -127,21 +130,21 @@
 
 #### US3 - Frontend Token Refresh
 
-- [ ] T052 [US3] Update AuthenticationService in bikeTracking.WebWasm/src/services/AuthenticationService.ts to implement acquireTokenSilent() for automatic refresh
-- [ ] T053 [US3] Update ApiClient in bikeTracking.WebWasm/src/services/ApiClient.ts to intercept API responses and refresh token on 401 if refresh token available
-- [ ] T054 [US3] Create unit test for token refresh in bikeTracking.WebWasm/tests/unit/TokenRefreshService.test.ts: verify tokens refresh before expiration
-- [ ] T055 [US3] Create integration test for continuous API calls with expiring token in bikeTracking.WebWasm/tests/integration/TokenRefreshFlow.test.ts
+- [ ] T051 [US3] Update AuthenticationService in bikeTracking.WebWasm/Services/ to implement AcquireTokenSilentAsync() for automatic refresh via JavaScript interop
+- [ ] T052 [US3] Update ApiClient in bikeTracking.WebWasm/Services/ to intercept API responses and refresh token on 401 if refresh token available
+- [ ] T053 [US3] Create unit test for token refresh in bikeTracking.Tests/TokenRefreshTests.cs: verify tokens refresh before expiration
+- [ ] T054 [US3] Create integration test for continuous API calls with expiring token in bikeTracking.Tests/Integration/TokenRefreshFlowTests.cs
 
 #### US3 - Backend Token Validation Enhancement
 
-- [ ] T056 [US3] Update BearerTokenAuthenticationHandler to log token refresh events to Application Insights for observability
-- [ ] T057 [US3] Create endpoint POST /api/auth/refresh-token (if needed) to handle client-initiated refresh from frontend as fallback mechanism
-- [ ] T058 [US3] Create unit test for token refresh validation in bikeTracking.Tests/Authentication/TokenRefreshTests.cs
+- [ ] T055 [US3] Update BearerTokenAuthenticationHandler to log token refresh events to Application Insights for observability
+- [ ] T056 [US3] Create endpoint POST /api/auth/refresh-token (if needed) to handle client-initiated refresh from frontend as fallback mechanism
+- [ ] T057 [US3] Create unit test for token refresh validation in bikeTracking.Tests/Authentication/TokenRefreshValidationTests.cs
 
 #### US3 - Integration & Observability
 
-- [ ] T059 [US3] Create integration test for token expires and frontend transparently refreshes in bikeTracking.WebWasm/tests/integration/TransparentTokenRefresh.test.ts
-- [ ] T060 [US3] Verify Application Insights logs all token refresh events (successful and failed) in bikeTracking.ApiService
+- [ ] T058 [US3] Create integration test for token expires and frontend transparently refreshes in bikeTracking.Tests/Integration/TransparentTokenRefreshTests.cs
+- [ ] T059 [US3] Verify Application Insights logs all token refresh events (successful and failed) in bikeTracking.ApiService
 
 ---
 
@@ -149,11 +152,11 @@
 
 ### Edge Cases Phase
 
-- [ ] T061 [P] Implement error handling when user authenticates but is not authorized for the application (user in Entra ID but not provisioned)
-- [ ] T062 [P] Implement retry logic with exponential backoff for token refresh failures due to network issues
-- [ ] T063 Implement UI notification when token refresh fails and user must re-authenticate (manual logout + redirect to login)
-- [ ] T064 Implement user notification when Entra ID account is disabled during active session (attempt API call → 401 → graceful logout)
-- [ ] T065 Log all edge case scenarios (unauthorized user, network failure, account disabled) to Application Insights
+- [ ] T060 [P] Implement error handling when user authenticates but is not authorized for the application (user in Entra ID but not provisioned) — return 403 Forbidden
+- [ ] T061 [P] Implement retry logic with exponential backoff for token refresh failures due to network issues
+- [ ] T062 Implement UI notification when token refresh fails and user must re-authenticate (manual logout + redirect to login)
+- [ ] T063 Implement user notification when Entra ID account is disabled during active session (attempt API call → 401 → graceful logout)
+- [ ] T064 Log all edge case scenarios (unauthorized user, network failure, account disabled) to Application Insights
 
 ---
 
@@ -161,11 +164,11 @@
 
 ### Observability Phase
 
-- [ ] T066 [P] Add structured logging for authentication attempt (success/failure) to Application Insights in bikeTracking.ApiService/Authentication/BearerTokenAuthenticationHandler.cs
-- [ ] T067 [P] Add metrics for authentication flow completion time (<500ms target) to Application Insights
-- [ ] T068 [P] Add metrics for token validation latency (<50ms target) per API request to Application Insights
-- [ ] T069 Create custom Application Insights queries for: authentication success rate, token refresh rate, 401 error frequency, average auth latency
-- [ ] T070 Document monitoring strategy in specs/002-entra-auth-msal/monitoring.md with alert thresholds for auth failures
+- [ ] T065 [P] Add structured logging for authentication attempt (success/failure) to Application Insights in bikeTracking.ApiService/Authentication/BearerTokenAuthenticationHandler.cs
+- [ ] T066 [P] Add logging for all 401 Unauthorized responses (missing, invalid, expired token) to Application Insights
+- [ ] T067 [P] Add logging for all 403 Forbidden responses (user not provisioned for app) to Application Insights
+- [ ] T068 Create custom Application Insights queries for: authentication success rate, token refresh rate, 401 error frequency, 403 authorization failures
+- [ ] T069 Document monitoring strategy in specs/002-entra-auth-msal/monitoring.md with alert thresholds for auth failures
 
 ---
 
@@ -173,30 +176,29 @@
 
 ### Documentation Phase
 
-- [ ] T071 Create quickstart.md in specs/002-entra-auth-msal/ with:
+- [ ] T070 Create quickstart.md in specs/002-entra-auth-msal/ with:
   - Step-by-step local development setup (Entra ID app registration, config values)
-  - How to run the application with MSAL authentication
+  - How to run the Blazor application with MSAL authentication
   - Manual testing checklist for all user stories
-  - Debugging tips for MSAL.js and token validation issues
+  - Debugging tips for MSAL.js JavaScript interop and token validation issues
 
-- [ ] T072 Create contracts/authentication-api.openapi.yml with OpenAPI 3.0 spec for all authentication endpoints:
-  - POST /api/auth/login (or handled by MSAL redirect)
+- [ ] T071 Create contracts/authentication-api.openapi.yml with OpenAPI 3.0 spec for all authentication endpoints:
   - POST /api/auth/logout (or handled by MSAL)
-  - GET /api/me (user profile)
+  - GET /api/me (authenticated user profile)
   - POST /api/auth/refresh-token (if implemented)
 
-- [ ] T073 Create contracts/bearer-token-schema.json documenting expected JWT token format and claims (oid, email, given_name, family_name, exp, iat, etc.)
+- [ ] T072 Create contracts/bearer-token-schema.json documenting expected JWT token format and claims (oid, email, given_name, family_name, exp, iat, etc.)
 
-- [ ] T074 Create data-model.md in specs/002-entra-auth-msal/ documenting:
-  - User principal entity structure (ID, email, displayName, objectId)
+- [ ] T073 Create data-model.md in specs/002-entra-auth-msal/ documenting:
+  - User principal entity structure (ID/oid, email, displayName, given_name, family_name)
   - Authentication audit log schema
-  - Token cache structure (MSAL managed in browser)
+  - Token management (MSAL managed in browser via JavaScript)
 
 ### Deployment Preparation
 
-- [ ] T075 [P] Update CI/CD pipeline (.github/workflows/) to build and test both frontend and backend with authentication enabled
-- [ ] T076 [P] Configure production Entra ID app registration with production redirect URLs (if deploying to Azure)
-- [ ] T077 Create deployment guide documenting how to configure Entra ID in production environment (Azure Key Vault for secrets, RBAC for app identity)
+- [ ] T074 [P] Update CI/CD pipeline (.github/workflows/) to build and test both Blazor frontend and .NET backend with authentication enabled
+- [ ] T075 [P] Configure production Entra ID app registration with production redirect URLs (if deploying to Azure)
+- [ ] T076 Create deployment guide documenting how to configure Entra ID in production environment (Azure Key Vault for secrets, RBAC for app identity)
 
 ---
 
@@ -205,27 +207,28 @@
 ### Code Quality Phase
 
 - [ ] T078 [P] Run static analysis (SonarQube or similar) on authentication code to verify no secrets in code, proper error handling
-- [ ] T079 [P] Run security scanning for OWASP top 10 vulnerabilities in authentication flow (XSS in token handling, CSRF in logout, etc.)
-- [ ] T080 [P] Verify all authentication code follows constitutional Principle II (pure functions separated from auth boundary operations)
-- [ ] T081 [P] Ensure all authentication code follows constitutional Principle VI (performance <500ms, observability via logging)
+- [ ] T077 [P] Run static analysis (SonarQube or similar) on authentication code to verify no secrets in code, proper error handling
+- [ ] T078 [P] Run security scanning for OWASP top 10 vulnerabilities in authentication flow (XSS in token handling, CSRF in logout, etc.)
+- [ ] T079 [P] Verify all authentication code follows constitutional Principle II (pure functions separated from auth boundary operations)
+- [ ] T080 [P] Ensure all authentication code follows constitutional Principle VI (performance targets <500ms, observability via logging)
 
 ### Final Testing & Acceptance
 
-- [ ] T082 [P] Run full end-to-end test scenario: unauthenticated user → login → access rides → logout → verify can only see main page
-- [ ] T083 [P] Run performance test with 100 concurrent authenticated users accessing API endpoints (verify <500ms response time)
-- [ ] T084 [P] Run security test: attempt to call protected endpoints with invalid tokens, expired tokens, missing tokens (verify all rejected with 401)
-- [ ] T085 [P] Manual acceptance test with actual Entra ID user account: full login → access protected pages → token refresh → logout
-- [ ] T086 Verify all requirements from spec.md acceptance scenarios are met and tested
-- [ ] T087 Verify all success criteria from spec.md are met:
+- [ ] T081 [P] Run full end-to-end test scenario: unauthenticated user → login → access protected pages (RidesPage, ProfilePage) → logout → verify can only see main page
+- [ ] T082 [P] Run security test: attempt to call protected API endpoints with invalid tokens, expired tokens, missing tokens (verify all rejected with 401); test 403 with unauthorized user
+- [ ] T083 [P] Manual acceptance test with actual Entra ID user account: full login → access protected pages → token refresh → logout
+- [ ] T084 Verify all requirements from spec.md acceptance scenarios are met and tested
+- [ ] T085 Verify all success criteria from spec.md are met:
   - ✓ Users authenticate via Entra ID
-  - ✓ All API endpoints reject unauthenticated requests
+  - ✓ All API endpoints reject unauthenticated requests with 401
+  - ✓ All API endpoints reject unauthorized users with 403
   - ✓ Tokens are included in requests and validated
   - ✓ Token refresh works transparently
+  - ✓ Protected pages hidden from unauthenticated users in Blazor UI
   - ✓ 100+ concurrent users supported
-  - ✓ Auth decisions <500ms
+  - ✓ Auth decisions <500ms p95
   - ✓ 99% success rate without manual retry
-  - ✓ All failures logged
-
+  - ✓ All failures logged to Application Insights
 ---
 
 ## Task Execution Strategy
@@ -259,19 +262,19 @@
 - Full observability implementation (some of Phase 6)
 - Comprehensive documentation (Phase 7)
 
-MVP delivers: Users authenticate via Entra ID, access protected pages, API validates tokens. Can be deployed and demonstrated to users.
+MVP delivers: Users authenticate via Entra ID using Blazor UI, access protected pages, API validates Bearer tokens and rejects unauthorized users. Can be deployed and demonstrated to users.
 
 ### Success Metrics
 
-- All 87 tasks completed and tested
+- All tasks (T001-T085) completed and tested
 - 0 authentication failures in manual acceptance testing
 - API response time <500ms p95 with authentication overhead
 - 100+ concurrent authenticated users sustainable
 - 99%+ successful authentication flow completion rate
-- All authentication events logged to Application Insights
+- All authentication events (login, logout, token refresh, 401, 403) logged to Application Insights
 - Spec.md all acceptance scenarios verified
 - Constitution checks re-pass post-implementation
 
 ---
 
-**Next Steps**: Begin Phase 1 setup tasks. Execute in order: T001, then T002-T008 in parallel.
+**Next Steps**: Begin Phase 1 setup tasks. Execute in order: T001, then T002-T008 in parallel. Use Azure MCP tools for Entra ID verification and Application Insights configuration.

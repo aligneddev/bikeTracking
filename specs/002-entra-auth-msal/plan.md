@@ -5,17 +5,17 @@
 
 ## Summary
 
-Implement real Entra ID authentication using MSAL across both the Vue.js frontend and .NET 10 API backend. Replace the current test authentication handler with a production-ready OAuth 2.0/OpenID Connect flow using the provided Entra ID app registration (ClientID: a9c55801-9ab4-45f9-a777-9320685f21ea). Unauthenticated users see only the main page; protected pages are hidden and redirect to login when accessed. The API validates all incoming tokens and rejects requests without valid Bearer tokens.
+Implement real Entra ID authentication using MSAL across both the Blazor frontend and .NET 10 API backend. Replace the current test authentication handler with a production-ready OAuth 2.0/OpenID Connect flow using the provided Entra ID app registration (ClientID: a9c55801-9ab4-45f9-a777-9320685f21ea). Unauthenticated users see only the main page; protected pages are hidden and redirect to login when accessed. The API validates all incoming tokens and rejects requests without valid Bearer tokens. Users authenticated in Entra ID but not authorized for this application receive 403 Forbidden responses.
 
 ## Technical Context
 
-**Language/Version**: Frontend: Vue.js (latest) with TypeScript; Backend: C# .NET 10  
-**Primary Dependencies**: Frontend: MSAL.js (@azure/msal-browser, @azure/msal-vue); Backend: Microsoft.Identity.Web, Microsoft.AspNetCore.Authentication.OpenIdConnect  
+**Language/Version**: Frontend: C# Blazor WebAssembly with Razor components; Backend: C# .NET 10  
+**Primary Dependencies**: Frontend: MSAL.js (@azure/msal-browser), Fluent UI Blazor components; Backend: Microsoft.Identity.Web, Microsoft.AspNetCore.Authentication.OpenIdConnect  
 **Storage**: N/A (authentication state stored in browser session/localStorage per MSAL best practices)  
-**Testing**: Frontend: Vitest/Jest; Backend: xUnit with test authentication handlers  
+**Testing**: Frontend: xUnit with Blazor testing library; Backend: xUnit with test authentication handlers  
 **Target Platform**: Web (browser frontend, server-hosted API)  
 **Project Type**: Web application (frontend + backend)  
-**Performance Goals**: Authentication flow completes in <500ms; token validation adds <50ms to API requests  
+**Performance Goals**: Authentication flow completes in <500ms; token validation adds <50ms to API requests (architectural targets, not formal test gates)  
 **Constraints**: Bearer token must be included in Authorization header for all protected API calls; tokens expire within 1 hour (Entra ID default)  
 **Scale/Scope**: Support 100+ concurrent authenticated users; apply to existing Rides API endpoints as first protected resource
 
@@ -35,8 +35,9 @@ Implement real Entra ID authentication using MSAL across both the Vue.js fronten
 
 ### Principle V: User Experience & Accessibility
 - ✓ PASS: Main page remains accessible to unauthenticated users
-- ✓ PASS: Protected pages hidden from unauthenticated users (no 403 errors, just hidden from navigation)
-- ✓ DECISION: Login/logout flows will use Fluent UI components for consistency
+- ✓ PASS: Protected pages hidden from unauthenticated users (no 403 errors to UI, just hidden from navigation)
+- ✓ PASS: Users authenticated but unauthorized receive clear 403 Forbidden response from API
+- ✓ DECISION: Login/logout flows will use Fluent UI Blazor components for consistency
 
 ### Principle VI: Performance & Observability
 - ✓ PASS: Bearer token validation must complete in <50ms (within <500ms API response budget)
@@ -48,7 +49,15 @@ Implement real Entra ID authentication using MSAL across both the Vue.js fronten
 - ✓ DECISION: User identity claims extracted from JWT token and validated before processing business logic
 
 **GATE RESULT**: ✓ PASS — Feature aligns with all core principles. No violations or rejustifications needed.
+Helpful Azure Resources
 
+**Use Azure MCP tools for these tasks**:
+- Entra ID app registration verification and configuration: Use Azure portal or `az` CLI commands (Azure MCP can help generate CLI commands)
+- Token validation troubleshooting: AppLens diagnostic tool can help debug token-related issues
+- Application Insights setup for logging: Azure MCP for resource provisioning
+- Bearer token claims validation best practices: Consult Azure best practices MCP
+
+## 
 ## Project Structure
 
 ### Documentation (this feature)
@@ -90,64 +99,68 @@ bikeTracking.ApiService/                                    # .NET 10 API backen
         ├── BearerTokenValidationTests.cs                  # Validate token handling
         └── AuthenticationIntegrationTests.cs              # End-to-end auth flow tests
 
-bikeTracking.WebWasm/                                       # Vue.js frontend (Blazor WebAssembly)
-├── src/
-│   ├── components/
-│   │   ├── LoginButton.vue                                # MSAL login trigger
-│   │   ├── LogoutButton.vue                               # MSAL logout trigger
-│   │   └── ProtectedPageGuard.vue                         # Route guard for authenticated pages
-│   ├── pages/
-│   │   ├── MainPage.vue                                   # Public main page
-│   │   ├── RidesPage.vue                                  # Protected: list/manage rides
-│   │   ├── ProfilePage.vue                                # Protected: user profile
-│   │   └── LoginRedirect.vue                              # OAuth redirect handler
-│   ├── router/
-│   │   └── index.ts                                       # Route definitions with auth guards
-│   ├── services/
-│   │   ├── AuthenticationService.ts                       # MSAL.js wrapper for login/logout/token
-│   │   ├── ApiClient.ts                                   # HTTP client with Bearer token injection
-│   │   └── useAuth.ts                                     # Vue composable for authentication state
-│   ├── stores/
-│   │   └── authStore.ts                                   # Pinia store for auth state
-│   ├── App.vue                                             # Root component with auth state check
-│   └── main.ts                                             # App entry point with MSAL initialization
-├── tests/
-│   ├── unit/
-│   │   ├── AuthenticationService.test.ts
-│   │   └── useAuth.test.ts
-│   └── integration/
-│       └── LoginFlow.test.ts
-└── public/
-    └── index.html
+bikeTracking.WebWasm/                                       # Blazor WebAssembly frontend
+├── Pages/
+│   ├── Authentication/
+│   │   ├── LoginCallback.razor                            # Callback page after Entra ID login (https://localhost:7265/authentication/login-callback)
+│   │   └── LogoutCallback.razor                           # Callback page after logout (https://localhost:7265/authentication/logout-callback)
+│   ├── MainPage.razor                                     # Public main page (accessible to all)
+│   ├── RidesPage.razor                                    # Protected page (authenticated only)
+│   └── ProfilePage.razor                                  # Protected page (authenticated only)
+├── Components/
+│   ├── LoginButton.razor                                  # MSAL login trigger component
+│   ├── LogoutButton.razor                                 # MSAL logout trigger component
+│   ├── AuthorizeView.razor                                # Components for auth-based rendering
+│   └── NotAuthorized.razor                                # Fallback for unauthorized users
+├── Services/
+│   ├── AuthenticationService.cs                           # MSAL.js wrapper for login/logout/token acquisition via JavaScript interop
+│   └── ApiClient.cs                                       # HTTP client with Bearer token injection
+├── App.razor                                               # Root component with authentication state provider
+├── Program.cs                                              # App initialization with MSAL configuration
+└── tests/
+    ├── Authentication/
+    │   ├── AuthenticationServiceTests.cs
+    │   └── UnauthorizedUserTests.cs
+    ├── Components/
+    │   ├── LoginButtonTests.cs
+    │   └── AuthorizeViewTests.cs
+    └── Integration/
+        ├── LoginFlowTests.cs
+        ├── LogoutFlowTests.cs
+        └── ProtectedPageAccessTests.cs
 ```
 
-**Structure Decision**: Web application with separate frontend (Vue.js in Blazor WebAssembly project) and backend (.NET 10 API). Authentication logic split: MSAL.js handles user login/logout in browser; Microsoft.Identity.Web validates Bearer tokens on API. Frontend routes guarded by auth composable; backend endpoints decorated with `[Authorize]` attribute.
+**Structure Decision**: Blazor WebAssembly application with MSAL.js integration for authentication. Authentication logic split: MSAL.js handles user login/logout in browser via JavaScript interop; Microsoft.Identity.Web validates Bearer tokens on API. Frontend uses AuthorizeView components to guard protected pages; backend endpoints decorated with `[Authorize]` attribute.
 
 ## Phase 0: Research & Clarifications
 
-*Status*: PENDING (create research.md with agent investigation)
+*Status*: COMPLETED (user clarifications incorporated Dec 22, 2025)
 
-### Research Tasks
+### Resolved Clarifications
+
+1. ✓ **Frontend Framework**: Pure Blazor WebAssembly with C# and Razor components (not Vue.js)
+2. ✓ **OAuth Callback URLs**: 
+   - Login: `https://localhost:7265/authentication/login-callback`
+   - Logout: `https://localhost:7265/authentication/logout-callback`
+3. ✓ **Unauthorized User Behavior**: Return 403 Forbidden (not authentication error) when user exists in Entra ID but not provisioned for app
+4. ✓ **Performance Testing**: Not required; <500ms and <50ms are architectural targets, not formal test gates
+
+### Remaining Research Items
 
 1. **MSAL.js Configuration in Blazor WebAssembly Environment**
-   - How does MSAL.js interact with Blazor WASM static assets?
-   - Token storage strategy (session storage vs. IndexedDB vs. secure cookie)?
-   - Redirect URI handling for `https://localhost:7265/authentication`
+   - How does MSAL.js interact with Blazor WASM via JavaScript interop?
+   - Token storage strategy (IndexedDB, session storage)?
+   - Callback URI handling for dual routes (login/logout)
 
 2. **Microsoft.Identity.Web Integration with .NET 10 Minimal APIs**
    - Bearer token validation middleware configuration
    - Claims extraction from JWT tokens
-   - Token caching and refresh strategies
+   - 403 Forbidden authorization policy implementation
 
-3. **Vue.js + Blazor WebAssembly Compatibility**
-   - Can Vue.js run alongside Blazor components?
-   - Build pipeline adjustments needed?
-   - OR: Should authentication be implemented purely in Blazor components (no Vue)?
-
-4. **Entra ID App Registration Validation**
-   - Verify ClientID, Object ID, Directory ID are correct
-   - Confirm redirect URL configured in app registration
-   - Check application permissions and scopes needed (default = User.Read)
+3. **Entra ID App Registration Validation**
+   - Verify ClientID, Object ID, Directory ID accuracy
+   - Confirm both redirect URLs configured in app registration
+   - Validate application permissions
 
 5. **Token Refresh & Session Management**
    - How to implement automatic token refresh without user intervention?
