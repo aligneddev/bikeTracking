@@ -30,11 +30,12 @@ A user visiting the web UI needs to authenticate using their Microsoft Entra ID 
 
 **Acceptance Scenarios**:
 
-1. **Given** a user is not authenticated and visits the web UI, **When** they access a protected page, **Then** they are redirected to the Microsoft Entra ID login page
-2. **Given** a user enters valid Entra ID credentials on the login page, **When** they complete authentication, **Then** they are redirected back to the web UI and can access protected resources
-3. **Given** a user is authenticated in the web UI, **When** they make API requests, **Then** the requests include a valid authentication token
-4. **Given** a user's session expires, **When** they attempt to access protected resources, **Then** they are prompted to re-authenticate
-5. **Given** a user clicks a logout button, **When** the action completes, **Then** their session is cleared and they cannot access protected resources without re-authenticating
+1. **Given** a user is not authenticated, **When** they visit the web UI, **Then** they can only view the main page and all other pages are hidden/inaccessible
+2. **Given** a user is not authenticated and tries to navigate to a protected page, **When** they attempt access, **Then** they are redirected to the Microsoft Entra ID login page
+3. **Given** a user enters valid Entra ID credentials on the login page, **When** they complete authentication, **Then** they are redirected back to the web UI and can access all protected resources
+4. **Given** a user is authenticated in the web UI, **When** they make API requests, **Then** the requests include a valid authentication token
+5. **Given** a user's session expires, **When** they attempt to access protected resources, **Then** they are prompted to re-authenticate
+6. **Given** a user clicks a logout button, **When** the action completes, **Then** their session is cleared, they return to the main page, and all protected pages are hidden again without re-authenticating
 
 ---
 
@@ -86,16 +87,17 @@ The application should automatically handle token refresh when tokens are near e
 
 ### Functional Requirements
 
-- **FR-001**: System MUST redirect unauthenticated users to the Microsoft Entra ID login page when accessing protected resources in the web UI
-- **FR-002**: System MUST accept and validate Entra ID authentication tokens in API requests via the Authorization header using Bearer token scheme
-- **FR-003**: System MUST extract and validate claims from Entra ID tokens to determine user identity and permissions
-- **FR-004**: System MUST provide a logout mechanism in the web UI that clears the user's session and authentication token
-- **FR-005**: System MUST integrate MSAL (Microsoft Authentication Library) in the web UI for Entra ID authentication
-- **FR-006**: System MUST integrate MSAL or equivalent token validation in the API backend for token verification
-- **FR-007**: System MUST support token refresh when tokens approach expiration to maintain user sessions
-- **FR-008**: System MUST include the authenticated user's identity information in API requests for audit and data isolation purposes
-- **FR-009**: System MUST return 401 Unauthorized status for API requests with missing, invalid, or expired tokens
-- **FR-010**: System MUST log all authentication attempts (successful and failed) for security auditing
+- **FR-001**: System MUST hide all protected pages and resources from unauthenticated users, showing only the main page as accessible
+- **FR-002**: System MUST redirect unauthenticated users to the Microsoft Entra ID login page when they attempt to navigate to protected pages or resources
+- **FR-003**: System MUST accept and validate Entra ID authentication tokens in API requests via the Authorization header using Bearer token scheme
+- **FR-004**: System MUST extract and validate claims from Entra ID tokens to determine user identity and permissions
+- **FR-005**: System MUST provide a logout mechanism in the web UI that clears the user's session and authentication token, returning unauthenticated users to the main page
+- **FR-006**: System MUST integrate MSAL (Microsoft Authentication Library) in the web UI for Entra ID authentication
+- **FR-007**: System MUST integrate MSAL or equivalent token validation in the API backend for token verification
+- **FR-008**: System MUST support token refresh when tokens approach expiration to maintain user sessions
+- **FR-009**: System MUST include the authenticated user's identity information in API requests for audit and data isolation purposes
+- **FR-010**: System MUST return 401 Unauthorized status for API requests with missing, invalid, or expired tokens
+- **FR-011**: System MUST log all authentication attempts (successful and failed) for security auditing
 
 ### Key Entities
 
